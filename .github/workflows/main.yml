@@ -1,5 +1,6 @@
 name: Build Custom Kernel DEB
 'on':
+  workflow_dispatch: null
   workflow_call:
     inputs:
       _cpusched:
