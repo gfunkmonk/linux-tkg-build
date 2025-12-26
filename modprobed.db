@@ -13,7 +13,6 @@ ata_piix
 aufs
 autofs4
 b43
-bcachefs
 bcma
 binfmt_misc
 bluetooth
