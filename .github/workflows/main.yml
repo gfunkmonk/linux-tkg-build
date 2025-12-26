@@ -55,29 +55,34 @@ jobs:
         with:
           swap-size-gb: 10
 
-      - name: 🌍 Set CCACHE_DIR environment variable
-        run: |
-          echo "CCACHE_DIR=${{ runner.temp }}/ccache_temp_dir" >> $GITHUB_ENV
+      #- name: 🌍 Set CCACHE_DIR environment variable
+      #  run: |
+      #    echo "CCACHE_DIR=${{ runner.temp }}/ccache_temp_dir" >> $GITHUB_ENV
 
       - name: 📂 Set up CCACHE_DIR mount
         run: |
-          mkdir -p ${{ env.CCACHE_DIR }}
+          #mkdir -p ${{ env.CCACHE_DIR }}
           sudo mkdir -p /mnt/ccache
-          sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
+          sudo chown -R $USER:$USER /mnt/ccache
+          #sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
           export CCACHE_DIR=/mnt/ccache
+          echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           df -h
 
       - name: 💾 ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          create-symlink: true
+          #create-symlink: true
           max-size: "10000MB"
           key: kernel-build-${{ runner.os }}-${{ hashFiles('Makefile', 'arch/*/Makefile', '.config') }}
           restore-keys: |
             kernel-build-${{ runner.os }}-
 
       - name: 🐎 Install deps and compile kernel
-        run: yes '' | ./install.sh install
+        #run: yes '' | ./install.sh install
+        run: |
+        #disable pipefail so yes SIGPIPE doesn't cause a step failure; exit with install.sh return code
+            set +o pipefail yes '' | ./install.sh install rc=${PIPESTATUS[1]} set -o pipefail exit $rc
 
       - name: 🧹 Cleanup useless DEB files
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb
