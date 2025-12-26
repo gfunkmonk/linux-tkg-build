@@ -18,7 +18,7 @@ src/*
 */pkg/
 pkg/*
 */linux-5*/
-*.myfrag
+#*.myfrag
 logs/*
 kernel_updates
 gnupg/

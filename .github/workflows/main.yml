@@ -14,7 +14,7 @@ jobs:
         run: |
           # Install required packages
           sudo apt update
-          sudo apt install -y bc bison build-essential cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd debhelper lld pkg-config devscripts make gcc ccache debhelper llvm clang
+          sudo apt install -y bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd debhelper lld pkg-config devscripts make gcc ccache debhelper llvm clang
 
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
