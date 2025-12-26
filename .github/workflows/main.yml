@@ -73,7 +73,7 @@ jobs:
           #create-symlink: true
           max-size: "10000MB"
           path: ${{ env.CCACHE_DIR }}
-          key: kernel-build-${{ runner.os }}-${{ hashFiles('Makefile', 'arch/*/Makefile', '.config') }
+          key: kernel-build-${{ runner.os }}-${{ hashFiles('Makefile', 'arch/*/Makefile', '.config') }}
           restore-keys: |
             kernel-build-${{ runner.os }}-
 
