@@ -1,20 +1,25 @@
 name: Build Custom Kernel DEB
 'on':
-  workflow_dispatch: null
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      _cpusched:
+        required: true
+        type: string
+
+env:
+  _modprobeddb_db_path: '${{ github.workspace }}/modprobed.db'
+
 jobs:
   build_kernel:
+    env:
+      _cpusched: '${{ inputs._cpusched }}'
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Install build dependencies
-        run: |
-          # Install required packages
-          sudo apt update
-          sudo apt install -y bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd debhelper lld pkg-config devscripts make gcc ccache debhelper llvm clang
+        run: >
+          # Install required packages sudo apt update sudo apt install -y bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc ccache debhelper llvm clang
 
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
@@ -28,11 +33,11 @@ jobs:
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb
 
       - name: rename kernel config
-        run: mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt
+        run: 'mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt'
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ubuntu-kernel-packages-${{ env._cpusched }}
+          name: 'ubuntu-kernel-packages-${{ env._cpusched }}'
           path: |
             DEBS/*.deb
             kernelconfig*.txt
