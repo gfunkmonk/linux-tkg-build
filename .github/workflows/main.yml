@@ -16,8 +16,8 @@ permissions:
 
 env:
   _modprobeddb_db_path: '${{ github.workspace }}/modprobed.db'
-  _kernel_work_folder: "/tmp"
-  _kernel_source_folder: "/tmp"
+  #_kernel_work_folder: "/tmp"
+  #_kernel_source_folder: "/tmp"
 
 jobs:
   build_kernel:
@@ -38,10 +38,14 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: 🔎 Get cpusched from config
+      - name: 📝 Get variables from config
         run: |
             CPUSCHED1=$(grep "cpusched=" customization.cfg | grep -Po '(?<=").*(?=")')
             echo "_cpusched=$CPUSCHED1" >> $GITHUB_ENV
+            NOCCACHE1=$(grep "noccache=" customization.cfg | grep -Po '(?<=").*(?=")')
+            echo "_noccache=$NOCCACHE1" >> $GITHUB_ENV
+            COMPILER1=$(grep "compiler=" customization.cfg | grep -Po '(?<=").*(?=")')
+            echo "_compiler=$COMPILER1" >> $GITHUB_ENV
 
       - name: 📦 Install build dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -50,7 +54,7 @@ jobs:
           version: 1.1
           execute_install_scripts: true
 
-      - name: 🧠 Set Swap Space
+      - name: 🌀 Set Swap Space
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
@@ -58,37 +62,86 @@ jobs:
       #- name: 🌍 Set CCACHE_DIR environment variable
       #  run: |
       #    echo "CCACHE_DIR=${{ runner.temp }}/ccache_temp_dir" >> $GITHUB_ENV
+      #    mkdir -p ${{ runner.temp }}/ccache_temp_dir
+
+      - name: 🌍 Set CCACHE environment variables
+        if: ${{ env._noccache != 'false' && env.compiler = 'gcc' }}
+        run: |
+          echo "CCACHE_SLOPPINESS=file_macro,locale,time_macros" >> $GITHUB_ENV
+          echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESS=1" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESSLEVEL=9" >> $GITHUB_ENV
+          echo "CCACHE_DEPEND=1" >> $GITHUB_ENV
+
+      - name: 👷 Set CCACHE compiler variables
+        if: ${{ env._noccache != 'false' }}
+        run: |
+          if [ ${{ env.compiler }} == 'gcc' ]; then
+            echo "CC=ccache gcc" >> $GITHUB_ENV
+            echo "CXX=ccache g++" >> $GITHUB_ENV
+          elif [ ${{ env.compiler }} == 'llvm' ]; then
+            echo "CC=ccache clang" >> $GITHUB_ENV
+            echo "CXX=ccache clang++" >> $GITHUB_ENV
+          else
+            echo "CC=ccache gcc" >> $GITHUB_ENV
+            echo "CXX=ccache g++" >> $GITHUB_ENV
+          fi
 
       - name: 📂 Set up CCACHE_DIR mount
+        if: ${{ env._noccache != 'false' }}
         run: |
-          #mkdir -p ${{ env.CCACHE_DIR }}
           sudo mkdir -p /mnt/ccache
           sudo chown -R $USER:$USER /mnt/ccache
+          #mkdir -p ${{ env.CCACHE_DIR }}
           #sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
-          export CCACHE_DIR=/mnt/ccache
+          mount --bind /mnt/ccache $HOME/.cache/ccache
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           df -h
 
-      - name: 💾 ccache
+      - name: 🏃 CCACHE
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          #create-symlink: true
+        if: ${{ env._noccache != 'false' }}
+          create-symlink: true
           max-size: "10000MB"
+          verbose: 2
           key: kernel-build-${{ runner.os }}-${{ hashFiles('Makefile', 'arch/*/Makefile', '.config') }}
           restore-keys: |
             kernel-build-${{ runner.os }}-
 
-      - name: 🐎 Install deps and compile kernel
-        #run: yes '' | ./install.sh install
+      - name: 🪳 Debug CCACHE + compiler (before build)
+        if: ${{ env._noccache != 'false' }}
         run: |
+          echo "=== PRE-BUILD CCACHE STATUS ==="
+          echo "CCACHE_DIR=$CCACHE_DIR"
+          ccache -s || true
+          echo "which gcc -> $(which gcc || true)"
+          if [ -x "$(which gcc 2>/dev/null)" ]; then ls -l "$(which gc
+          echo "PATH=$PATH"
+          env | grep -i ccache || true
+          echo "=== END PRE-BUILD STATUS ==="
+
+      - name: 🦼🧑‍🔧 Install deps and compile kernel
+        run: |
+          echo "KBUILD_BUILD_TIMESTAMP=1970-01-01 00:00:00" >> $GITHUB_ENV
+          echo "KBUILD_BUILD_VERSION=1" >> $GITHUB_ENV
           set +o pipefail yes '' | ./install.sh install
           rc=${PIPESTATUS[1]}
           set -o pipefail exit $rc
 
-      - name: 🧹 Cleanup useless DEB files
+      - name: 🪲 Debug CCACHE (after build)
+        if: ${{ env._noccache != 'false' }}
+        run: |
+          echo "=== POST-BUILD CCACHE STATUS ==="
+          ccache -s || true
+          du -sh /mnt/ccache || true
+          ls -la /mnt/ccache || true
+          echo "=== END POST-BUILD STATUS ==="
+
+      - name: 🧹🪣 Cleanup useless DEB files
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb
 
-      - name: ✏️ rename kernel config
+      - name: 𝐍𝐚𝐦𝐞 rename kernel config
         run: 'mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt'
 
       - uses: actions/upload-artifact@v4
