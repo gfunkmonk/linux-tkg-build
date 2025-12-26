@@ -14,28 +14,23 @@ jobs:
   build_kernel:
     env:
       _cpusched: '${{ inputs._cpusched }}'
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Install build dependencies
-        run: >
-          # Install required packages sudo apt update sudo apt install -y bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc ccache debhelper llvm clang
-
+        run: |
+          # Install required packages 
+          sudo apt update 
+          sudo apt install -y bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc ccache debhelper llvm clang
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
-
       - name: Install deps and compile kernel
         run: yes '' | ./install.sh install
-
       - name: Cleanup useless DEB files
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb
-
       - name: rename kernel config
         run: 'mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt'
-
       - uses: actions/upload-artifact@v4
         with:
           name: 'ubuntu-kernel-packages-${{ env._cpusched }}'
