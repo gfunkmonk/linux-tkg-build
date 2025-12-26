@@ -64,10 +64,10 @@ jobs:
       - name: 🌍 Set CCACHE_DIR environment variable
         run: |
           echo "CCACHE_DIR=${{ runner.temp }}/ccache_temp_dir" >> $GITHUB_ENV
-          sudo mkdir -p ${{ env.CCACHE_DIR }}
 
       - name: 📂 Set up CCACHE_DIR mount
         run: |
+          sudo mkdir -p ${{ env.CCACHE_DIR }}
           sudo mkdir -p /mnt/ccache
           sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
           export CCACHE_DIR=/mnt/ccache
