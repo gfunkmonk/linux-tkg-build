@@ -89,7 +89,9 @@ jobs:
           sudo chown -R $USER:$USER /mnt/ccache
           #mkdir -p ${{ env.CCACHE_DIR }}
           #sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
-          mount --bind /mnt/ccache $HOME/.cache/ccache
+          mkdir -p ${{ github.workspace }}/.ccache
+          sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
+          mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           df -h
 
