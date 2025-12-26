@@ -1,4 +1,14 @@
 name: Build Custom Kernel DEB
+
+# Workflow optimizations:
+# - Concurrency control prevents duplicate/overlapping runs
+# - Shallow clone (fetch-depth: 1) for faster checkout
+# - Removed separate apt update step (handled by cache-apt-pkgs-action)
+# - Artifact compression and 30-day retention to save storage
+# - Least privilege permissions (contents: read)
+# - Global shell default to reduce redundancy
+# - Timeout protection (360 mins) to prevent runaway jobs
+
 'on':
   workflow_dispatch: null
   workflow_call:
