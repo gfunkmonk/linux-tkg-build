@@ -12,12 +12,21 @@ env:
 
 jobs:
   build_kernel:
-    env:
-      _cpusched: '${{ inputs._cpusched }}'
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Get cpusched from config
+        run: |
+            CPUSCHED1=$(grep "cpusched=" customization.cfg | grep -Po '(?<=").*(?=")')
+            echo "_cpusched=$CPUSCHED1" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Fetch latest apt database
+        run: sudo apt update
 
       - name: Install build dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
