@@ -114,7 +114,7 @@ jobs:
           echo "CCACHE_DIR=$CCACHE_DIR"
           ccache -s || true
           echo "which gcc -> $(which gcc || true)"
-          if [ -x "$(which gcc 2>/dev/null)" ]; then ls -l "$(which gc
+          if [ -x "$(which gcc 2>/dev/null)" ]; then ls -l "$(which gcc)"; fi
           echo "PATH=$PATH"
           env | grep -i ccache || true
           echo "=== END PRE-BUILD STATUS ==="
