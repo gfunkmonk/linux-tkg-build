@@ -16,6 +16,8 @@ jobs:
       _cpusched: '${{ inputs._cpusched }}'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Install build dependencies
         run: |
           # Install required packages 
