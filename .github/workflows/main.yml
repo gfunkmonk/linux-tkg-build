@@ -81,8 +81,9 @@ jobs:
       - name: 🐎 Install deps and compile kernel
         #run: yes '' | ./install.sh install
         run: |
-        #disable pipefail so yes SIGPIPE doesn't cause a step failure; exit with install.sh return code
-            set +o pipefail yes '' | ./install.sh install rc=${PIPESTATUS[1]} set -o pipefail exit $rc
+          set +o pipefail yes '' | ./install.sh install
+          rc=${PIPESTATUS[1]}
+          set -o pipefail exit $rc
 
       - name: 🧹 Cleanup useless DEB files
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb
