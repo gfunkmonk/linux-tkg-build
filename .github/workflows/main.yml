@@ -28,10 +28,10 @@ jobs:
         shell: bash
 
     steps:
-      - name: 👉🏻🗑️ Free Disk Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          swap-storage: true
+      #- name: 👉🏻🗑️ Free Disk Space
+      #  uses: jlumbroso/free-disk-space@main
+      #  with:
+      #    swap-storage: true
 
       - name: 🛒 Checkout repository
         uses: actions/checkout@v4
@@ -61,17 +61,17 @@ jobs:
           create-symlink: true
           max-size: "5000MB"
 
-      - name: 🌍 Set CCACHE_DIR environment variable
-        run: |
-          echo "CCACHE_DIR=${{ runner.temp }}/ccache_temp_dir" >> $GITHUB_ENV
+      #- name: 🌍 Set CCACHE_DIR environment variable
+      #  run: |
+      #    echo "CCACHE_DIR=${{ runner.temp }}/ccache_temp_dir" >> $GITHUB_ENV
 
-      - name: 📂 Set up CCACHE_DIR mount
-        run: |
-          mkdir -p ${{ env.CCACHE_DIR }}
-          sudo mkdir -p /mnt/ccache
-          sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
-          export CCACHE_DIR=/mnt/ccache
-          df -h
+      #- name: 📂 Set up CCACHE_DIR mount
+      #  run: |
+      #    mkdir -p ${{ env.CCACHE_DIR }}
+      #    sudo mkdir -p /mnt/ccache
+      #    sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
+      #    export CCACHE_DIR=/mnt/ccache
+      #    df -h
 
       - name: 🐎 Install deps and compile kernel
         run: yes '' | ./install.sh install
