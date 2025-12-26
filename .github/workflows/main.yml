@@ -7,6 +7,13 @@ name: Build Custom Kernel DEB
         required: true
         type: string
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs._cpusched }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 env:
   _modprobeddb_db_path: '${{ github.workspace }}/modprobed.db'
 
@@ -14,43 +21,66 @@ jobs:
   build_kernel:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: 👉🏻🗑️ Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          swap-storage: true
 
-      - name: Get cpusched from config
+      - name: 🛒 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 🔎 Get cpusched from config
         run: |
             CPUSCHED1=$(grep "cpusched=" customization.cfg | grep -Po '(?<=").*(?=")')
             echo "_cpusched=$CPUSCHED1" >> $GITHUB_ENV
-        shell: bash
 
-      - name: Fetch latest apt database
-        run: sudo apt update
-
-      - name: Install build dependencies
+      - name: 📦 Install build dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc ccache debhelper llvm clang
-          version: 1.0
+          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc debhelper llvm clang
+          version: 1.1
+          execute_install_scripts: true
 
-      - name: Set Swap Space
+      - name: 🧠 Set Swap Space
         uses: pierotofy/set-swap-space@master
         with:
-          swap-size-gb: 10
+          swap-size-gb: 5
 
-      - name: ccache
+      - name: 💾 ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           create-symlink: true
+          max-size: "5000MB"
 
-      - name: Install deps and compile kernel
+      - name: 🌍 Set CCACHE_DIR environment variable
+        run: echo "CCACHE_DIR=${{ runner.temp }}/ccache_temp_dir" >> $GITHUB_ENV
+
+      - name: 📂 Set up CCACHE_DIR mount
+        run: |
+          sudo apt-get -qq purge build-essential ghc*
+          sudo apt-get clean
+          docker system prune -af
+          mkdir -p ${{ env.CCACHE_DIR }}
+          sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
+          export CCACHE_DIR=/mnt/ccache
+          df -h
+
+      - name: 🐎 Install deps and compile kernel
         run: yes '' | ./install.sh install
 
-      - name: Cleanup useless DEB files
+      - name: 🧹 Cleanup useless DEB files
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb
 
-      - name: rename kernel config
+      - name: ✏️ rename kernel config
         run: 'mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt'
 
       - uses: actions/upload-artifact@v4
@@ -59,3 +89,5 @@ jobs:
           path: |
             DEBS/*.deb
             kernelconfig*.txt
+          compression-level: 6
+          retention-days: 30
