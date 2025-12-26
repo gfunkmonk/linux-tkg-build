@@ -60,7 +60,7 @@ jobs:
           swap-size-gb: 10
 
       - name: 🌍 Set CCACHE environment variables
-        if: ${{ env._noccache != 'false' && env.compiler = 'gcc' }}
+        if: ${{ env._noccache != 'false' }}
         run: |
           echo "CCACHE_SLOPPINESS=file_macro,locale,time_macros" >> $GITHUB_ENV
           echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
