@@ -7,6 +7,15 @@ name: Build Custom Kernel DEB
         required: true
         type: string
 
+# Prevent concurrent workflow runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs._cpusched }}
+  cancel-in-progress: true
+
+# Set minimal required permissions
+permissions:
+  contents: read
+
 env:
   _modprobeddb_db_path: '${{ github.workspace }}/modprobed.db'
 
@@ -14,25 +23,29 @@ jobs:
   build_kernel:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Get cpusched from config
         run: |
             CPUSCHED1=$(grep "cpusched=" customization.cfg | grep -Po '(?<=").*(?=")')
             echo "_cpusched=$CPUSCHED1" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Fetch latest apt database
-        run: sudo apt update
 
       - name: Install build dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc ccache debhelper llvm clang
-          version: 1.0
+          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc debhelper llvm clang
+          version: 1.1
+          execute_install_scripts: true
 
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
@@ -59,3 +72,5 @@ jobs:
           path: |
             DEBS/*.deb
             kernelconfig*.txt
+          compression-level: 6
+          retention-days: 30
