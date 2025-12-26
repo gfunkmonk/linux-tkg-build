@@ -16,13 +16,13 @@ permissions:
 
 env:
   _modprobeddb_db_path: '${{ github.workspace }}/modprobed.db'
+  _kernel_work_folder: "/tmp"
+  _kernel_source_folder: "/tmp"
 
 jobs:
   build_kernel:
-
     runs-on: ubuntu-latest
     timeout-minutes: 360
-
     defaults:
       run:
         shell: bash
@@ -70,7 +70,7 @@ jobs:
       - name: 💾 ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          #create-symlink: true
+          create-symlink: true
           max-size: "10000MB"
           key: kernel-build-${{ runner.os }}-${{ hashFiles('Makefile', 'arch/*/Makefile', '.config') }}
           restore-keys: |
