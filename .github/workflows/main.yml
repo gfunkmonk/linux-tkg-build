@@ -60,7 +60,7 @@ jobs:
           swap-size-gb: 10
 
       - name: 🌍 Set CCACHE environment variables
-        if: ${{ env._noccache != 'false' }}
+        if: ${{ env._noccache != 'true' }}
         run: |
           echo "CCACHE_SLOPPINESS=file_macro,locale,time_macros" >> $GITHUB_ENV
           echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
@@ -69,7 +69,7 @@ jobs:
           echo "CCACHE_DEPEND=1" >> $GITHUB_ENV
 
       - name: 👷 Set CCACHE compiler variables
-        if: ${{ env._noccache != 'false' }}
+        if: ${{ env._noccache != 'true' }}
         run: |
           if [ ${{ env.compiler }} == 'gcc' ]; then
             echo "CC=ccache gcc" >> $GITHUB_ENV
@@ -83,7 +83,7 @@ jobs:
           fi
 
       - name: 📂 Set up CCACHE_DIR mount
-        if: ${{ env._noccache != 'false' }}
+        if: ${{ env._noccache != 'true' }}
         run: |
           sudo mkdir -p /mnt/ccache
           sudo chown -R $USER:$USER /mnt/ccache
@@ -94,7 +94,7 @@ jobs:
           df -h
 
       - name: 🏃 CCACHE
-        if: ${{ env._noccache != 'false' }}
+        if: ${{ env._noccache != 'true' }}
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           create-symlink: "true"
@@ -106,7 +106,7 @@ jobs:
             kernel-build-${{ runner.os }}-
 
       - name: 🪳 Debug CCACHE + compiler (before build)
-        if: ${{ env._noccache != 'false' }}
+        if: ${{ env._noccache != 'true' }}
         run: |
           echo "=== PRE-BUILD CCACHE STATUS ==="
           echo "CCACHE_DIR=$CCACHE_DIR"
@@ -126,7 +126,7 @@ jobs:
           set -o pipefail exit $rc
 
       - name: 🪲 Debug CCACHE (after build)
-        if: ${{ env._noccache != 'false' }}
+        if: ${{ env._noccache != 'true' }}
         run: |
           echo "=== POST-BUILD CCACHE STATUS ==="
           ccache -s || true
