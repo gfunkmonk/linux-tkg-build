@@ -91,7 +91,7 @@ jobs:
           #sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
           mkdir -p ${{ github.workspace }}/.ccache
           sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
-          mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
+          sudo mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           df -h
 
