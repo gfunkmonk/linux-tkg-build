@@ -37,13 +37,11 @@ jobs:
           fetch-depth: 1
 
       - name: 📝 Get variables from config
-        run: >
+        run: |
           CPUSCHED1=$(grep "cpusched=" customization.cfg | grep -Po '(?<=").*(?=")')
           echo "_cpusched=$CPUSCHED1" >> $GITHUB_ENV
-
           NOCCACHE1=$(grep "noccache=" customization.cfg | grep -Po '(?<=").*(?=")')
           echo "_noccache=$NOCCACHE1" >> $GITHUB_ENV
-
           COMPILER1=$(grep "compiler=" customization.cfg | grep -Po '(?<=").*(?=")')
           echo "_compiler=$COMPILER1" >> $GITHUB_ENV
 
