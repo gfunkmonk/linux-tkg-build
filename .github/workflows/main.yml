@@ -101,8 +101,8 @@ jobs:
       - name: 🏃 CCACHE
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-        if: ${{ env._noccache != 'false' }}
-          create-symlink: true
+          if: env._noccache != 'false'
+          create-symlink: "true"
           max-size: "10000MB"
           verbose: 2
           key: kernel-build-${{ runner.os }}-${{ hashFiles('Makefile', 'arch/*/Makefile', '.config') }}
