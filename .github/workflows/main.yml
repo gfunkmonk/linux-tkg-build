@@ -1,4 +1,5 @@
-----
+---
+
 name: 'Build Custom Kernel DEB'
 
 on:
@@ -83,7 +84,7 @@ jobs:
           echo "CCACHE_DEPEND=1" >> $GITHUB_ENV
 
       - if: ${{ env._noccache != 'true' }}
-        name: [⚒️👷 Set CCACHE compiler variables 👷⚒️]
+        name: ǁ⚒️👷 Set CCACHE compiler variables 👷⚒️ǁ
         run: |
           if [[ "${{ env._compiler }}" == "gcc" ]]; then
             echo "CC=ccache gcc" >> $GITHUB_ENV
@@ -97,7 +98,7 @@ jobs:
           fi
 
       - if: ${{ env._noccache != 'true' }}
-        name: 📂 Set up CCACHE_DIR mount 🗄🗄
+        name: 📂 Set up CCACHE_DIR mount 🗄
         run: |
           sudo mkdir -p /mnt/ccache
           sudo chown -R $USER:$USER /mnt/ccache
