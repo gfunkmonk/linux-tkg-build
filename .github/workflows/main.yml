@@ -1,14 +1,11 @@
-name: Build Custom Kernel DEB
+---
+name: 'Build Custom Kernel DEB'
+
 on:
-  workflow_dispatch: null
-  workflow_call:
-    inputs:
-      _cpusched:
-        required: true
-        type: string
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs._cpusched }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -19,8 +16,8 @@ env:
 
 jobs:
   build_kernel:
-    runs-on: ubuntu-latest
     timeout-minutes: 360
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -37,30 +34,38 @@ jobs:
           fetch-depth: 1
 
       - name: 📝 Get variables from config
-        run: |
-          CPUSCHED1=$(grep "cpusched=" customization.cfg | grep -Po '(?<=").*(?=")')
+        run: >
+          if [ ! -f customization.cfg ]; then
+            echo "Error: customization.cfg not found"
+            exit 1
+          fi
+
+          CPUSCHED1=$(grep "cpusched=" customization.cfg | grep -Po
+          '(?<=").*(?=")')
           echo "_cpusched=$CPUSCHED1" >> $GITHUB_ENV
-          NOCCACHE1=$(grep "noccache=" customization.cfg | grep -Po '(?<=").*(?=")')
+          NOCCACHE1=$(grep "noccache=" customization.cfg | grep -Po
+          '(?<=").*(?=")')
           echo "_noccache=$NOCCACHE1" >> $GITHUB_ENV
-          COMPILER1=$(grep "compiler=" customization.cfg | grep -Po '(?<=").*(?=")')
+          COMPILER1=$(grep "compiler=" customization.cfg | grep -Po
+          '(?<=").*(?=")')
           echo "_compiler=$COMPILER1" >> $GITHUB_ENV
 
       - name: 📦 Install build dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
+          execute_install_scripts: true
           packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev
             libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd
             lld pkg-config devscripts make gcc debhelper llvm clang
           version: 1.1
-          execute_install_scripts: true
 
       - name: 🌀 Set Swap Space
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
 
-      - name: 🌍 Set CCACHE environment variables
-        if: ${{ env._noccache != 'true' }}
+      - if: ${{ env._noccache != 'true' }}
+        name: 🌍 Set CCACHE environment variables
         run: |
           echo "CCACHE_SLOPPINESS=file_macro,locale,time_macros" >> $GITHUB_ENV
           echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
@@ -68,13 +73,13 @@ jobs:
           echo "CCACHE_COMPRESSLEVEL=9" >> $GITHUB_ENV
           echo "CCACHE_DEPEND=1" >> $GITHUB_ENV
 
-      - name: 👷 Set CCACHE compiler variables
-        if: ${{ env._noccache != 'true' }}
+      - if: ${{ env._noccache != 'true' }}
+        name: 👷 Set CCACHE compiler variables
         run: |
-          if [ ${{ env.compiler }} == 'gcc' ]; then
+          if [[ "${{ env._compiler }}" == "gcc" ]]; then
             echo "CC=ccache gcc" >> $GITHUB_ENV
             echo "CXX=ccache g++" >> $GITHUB_ENV
-          elif [ ${{ env.compiler }} == 'llvm' ]; then
+          elif [[ "${{ env._compiler }}" == "llvm" ]]; then
             echo "CC=ccache clang" >> $GITHUB_ENV
             echo "CXX=ccache clang++" >> $GITHUB_ENV
           else
@@ -82,33 +87,31 @@ jobs:
             echo "CXX=ccache g++" >> $GITHUB_ENV
           fi
 
-      - name: 📂 Set up CCACHE_DIR mount
-        if: ${{ env._noccache != 'true' }}
+      - if: ${{ env._noccache != 'true' }}
+        name: 📂 Set up CCACHE_DIR mount
         run: |
           sudo mkdir -p /mnt/ccache
           sudo chown -R $USER:$USER /mnt/ccache
-          #mkdir -p ${{ env.CCACHE_DIR }}
-          #sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
           mkdir -p ${{ github.workspace }}/.ccache
           sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
           sudo mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           df -h
 
-      - name: 🏃 CCACHE
-        if: ${{ env._noccache != 'true' }}
+      - if: ${{ env._noccache != 'true' }}
+        name: 🏃 CCACHE
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          create-symlink: "true"
-          max-size: 10000MB
-          verbose: 2
+          create-symlink: 'true'
           key: kernel-build-${{ runner.os }}-${{ hashFiles('Makefile', 'arch/*/Makefile',
             '.config') }}
+          max-size: '10000MB'
           restore-keys: |
             kernel-build-${{ runner.os }}-
+          verbose: 2
 
-      - name: 🪳 Debug CCACHE + compiler (before build)
-        if: ${{ env._noccache != 'true' }}
+      - if: ${{ env._noccache != 'true' }}
+        name: 🪳 Debug CCACHE + compiler (before build)
         run: |
           echo "=== PRE-BUILD CCACHE STATUS ==="
           echo "CCACHE_DIR=$CCACHE_DIR"
@@ -123,12 +126,14 @@ jobs:
         run: |
           echo "KBUILD_BUILD_TIMESTAMP=1970-01-01 00:00:00" >> $GITHUB_ENV
           echo "KBUILD_BUILD_VERSION=1" >> $GITHUB_ENV
-          set +o pipefail yes '' | ./install.sh install
+          set +o pipefail
+          yes '' | ./install.sh install
           rc=${PIPESTATUS[1]}
-          set -o pipefail exit $rc
+          set -o pipefail
+          exit $rc
 
-      - name: 🪲 Debug CCACHE (after build)
-        if: ${{ env._noccache != 'true' }}
+      - if: ${{ env._noccache != 'true' }}
+        name: 🪲 Debug CCACHE (after build)
         run: |
           echo "=== POST-BUILD CCACHE STATUS ==="
           ccache -s || true
@@ -137,16 +142,16 @@ jobs:
           echo "=== END POST-BUILD STATUS ==="
 
       - name: 🧹🪣 Cleanup useless DEB files
-        run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb
-
+        run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb 2>/dev/null || true
       - name: 𝐍𝐚𝐦𝐞 rename kernel config
         run: 'mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt'
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
+          compression-level: 6
+          retention-days: 30
           name: 'ubuntu-kernel-packages-${{ env._cpusched }}'
           path: |
             DEBS/*.deb
             kernelconfig*.txt
-          compression-level: 6
-          retention-days: 30
