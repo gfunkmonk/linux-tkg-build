@@ -143,13 +143,13 @@ jobs:
 
       - name: 🧹🪣 Cleanup useless DEB files
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb 2>/dev/null || true
-      - name: 𝐍𝐚𝐦𝐞 rename kernel config
-        run: |
-        'mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt'
-        MYKVER=$(grep "VERSION = " linux-src-git/Makefile | cut -d '=' -f 2 | grep -oE '^\s*[0-9]+')
-        MYKPATCH=$(grep "PATCHLEVEL = " linux-src-git/Makefile | cut -d '=' -f 2 | grep -oE '^\s*[0-9]+')
-        MYKSUBLEVEL=$(grep "SUBLEVEL = " linux-src-git/Makefile | cut -d '=' -f 2 | grep -oE '^\s*[0-9]+')
-        echo "_kernver={$MYKVER}.${MYKPATCH}.${MYSUBLEVEL}"  >> $GITHUB_ENV
+      - name: 𝐍𝐚𝐦𝐞 rename kernel config 
+        run: |  
+          'mv kernelconfig.new kernelconfig.ubuntu.${{ env._cpusched }}.txt'
+          MYKVER=$(grep "VERSION = " linux-src-git/Makefile | cut -d '=' -f 2 | grep -oE '^\s*[0-9]+')
+          MYKPATCH=$(grep "PATCHLEVEL = " linux-src-git/Makefile | cut -d '=' -f 2 | grep -oE '^\s*[0-9]+')
+          MYKSUBLEVEL=$(grep "SUBLEVEL = " linux-src-git/Makefile | cut -d '=' -f 2 | grep -oE '^\s*[0-9]+')
+          echo "_kernver={$MYKVER}.${MYKPATCH}.${MYSUBLEVEL}"  >> $GITHUB_ENV
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
