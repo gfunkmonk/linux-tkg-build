@@ -120,17 +120,17 @@ jobs:
             kernel-build-${{ runner.os }}-
           verbose: 2
 
-      - if: ${{ env._noccache != 'true' }}
-        name: 🪳 Debug CCACHE + compiler 🤔 (before build)
-        run: |
-          echo "=== PRE-BUILD CCACHE STATUS ==="
-          echo "CCACHE_DIR=$CCACHE_DIR"
-          ccache -s || true
-          echo "which gcc -> $(which gcc || true)"
-          if [ -x "$(which gcc 2>/dev/null)" ]; then ls -l "$(which gcc)"; fi
-          echo "PATH=$PATH"
-          env | grep -i ccache || true
-          echo "=== END PRE-BUILD STATUS ==="
+      #- if: ${{ env._noccache != 'true' }}
+      #  name: 🪳 Debug CCACHE + compiler 🤔 (before build)
+      #  run: |
+      #    echo "=== PRE-BUILD CCACHE STATUS ==="
+      #    echo "CCACHE_DIR=$CCACHE_DIR"
+      #    ccache -s || true
+      #    echo "which gcc -> $(which gcc || true)"
+      #    if [ -x "$(which gcc 2>/dev/null)" ]; then ls -l "$(which gcc)"; fi
+      #    echo "PATH=$PATH"
+      #    env | grep -i ccache || true
+      #    echo "=== END PRE-BUILD STATUS ==="
 
       - name: 🦼🧑‍🚧 Install deps and compile kernel 👷🚧🏗️
         run: |
@@ -142,14 +142,14 @@ jobs:
           set -o pipefail
           exit $rc
 
-      - if: ${{ env._noccache != 'true' }}
-        name: 🪲 Debug CCACHE 🧐 (after build)
-        run: |
-          echo "=== POST-BUILD CCACHE STATUS ==="
-          ccache -s || true
-          du -sh /mnt/ccache || true
-          ls -la /mnt/ccache || true
-          echo "=== END POST-BUILD STATUS ==="
+     # - if: ${{ env._noccache != 'true' }}
+     #   name: 🪲 Debug CCACHE 🧐 (after build)
+     #   run: |
+     #     echo "=== POST-BUILD CCACHE STATUS ==="
+     #     ccache -s || true
+     #     du -sh /mnt/ccache || true
+     #     ls -la /mnt/ccache || true
+     #     echo "=== END POST-BUILD STATUS ==="
 
       - name: 🧹🪣 Cleanup useless DEB files ✨
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb 2>/dev/null || true
@@ -159,7 +159,7 @@ jobs:
       - name: ⬆️ Upload artifacts 💖💖
         uses: actions/upload-artifact@v4
         with:
-          compression-level: 6
+          compression-level: 8
           retention-days: 30
           name: '${{ env._distro }}-kernel-${{ env._version }}-tkg-pkg-${{ env._cpusched }}_${{ env._compiler }}'
           path: |
