@@ -24,19 +24,19 @@ jobs:
         shell: bash
 
     steps:
-      - name: 👉🏻🗑️ Free Disk Space ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
+      - name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
         uses: jlumbroso/free-disk-space@main
         with:
           swap-storage: true
           large-packages: false
           tool-cache: true
 
-      - name: (づ ᴗ _ᴗ)づCheckout repository 🎁
+      - name: (づ ᴗ _ᴗ)づ𝘾𝙝𝙚𝙘𝙠𝙤𝙪𝙩 𝙧𝙚𝙥𝙤𝙨𝙞𝙩𝙤𝙧𝙮 🎁
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: ˖⌕ ۫ . Get variables from config . . ﹫
+      - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ ƒяσм ¢σηƒιg  . . ﹫
         run: |
           export CFG="customization.cfg"
 
@@ -60,7 +60,7 @@ jobs:
           MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           echo "_distro=$MYDISTRO" >> $GITHUB_ENV
 
-      - name: 📦 Install build dependencies 📦📦
+      - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           execute_install_scripts: true
@@ -69,13 +69,13 @@ jobs:
             lld pkg-config devscripts make gcc debhelper llvm clang
           version: 1.1
 
-      - name: ⋆˚꩜｡ Set Swap Space ⋆˚꩜｡
+      - name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
 
       - if: ${{ env._noccache != 'true' }}
-        name: 🌍 Set CCACHE environment variables 📜
+        name: 🌍 🅲🅲🅰🅲🅷🅴 🅴🅽🆅🅸🆁🅾🅽🅼🅴🅽🆃 🆅🅰🆁🅸🅰🅱🅻🅴🆂 📜
         run: |
           echo "CCACHE_SLOPPINESS=file_macro,locale,time_macros" >> $GITHUB_ENV
           echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
@@ -84,7 +84,7 @@ jobs:
           echo "CCACHE_DEPEND=1" >> $GITHUB_ENV
 
       - if: ${{ env._noccache != 'true' }}
-        name: ǁ⚒️👷 Set CCACHE compiler variables 👷⚒️ǁ
+        name: ǁ⚒️👷 ƈƈǟƈɦɛ ƈօʍքɨʟɛʀ ʋǟʀɨǟɮʟɛֆ 👷⚒️ǁ
         run: |
           if [[ "${{ env._compiler }}" == "gcc" ]]; then
             echo "CC=ccache gcc" >> $GITHUB_ENV
@@ -98,18 +98,18 @@ jobs:
           fi
 
       - if: ${{ env._noccache != 'true' }}
-        name: 📂 Set up CCACHE_DIR mount 🗄
+        name: 📂 𝐒𝖾𝗍 υρ 𝐂𝐂𝐀𝐂𝐇𝐄_𝐃𝚰𝐑
         run: |
           sudo mkdir -p /mnt/ccache
           sudo chown -R $USER:$USER /mnt/ccache
-          mkdir -p ${{ github.workspace }}/.ccache
-          sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
-          sudo mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
+          #mkdir -p ${{ github.workspace }}/.ccache
+          #sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
+          #sudo mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           df -h
 
       - if: ${{ env._noccache != 'true' }}
-        name: 🏎️💨 CCACHE ▀▄▀▄▀▄
+        name: ➰🐠 CCACHE 💨🐇
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           create-symlink: 'true'
@@ -132,7 +132,7 @@ jobs:
       #    env | grep -i ccache || true
       #    echo "=== END PRE-BUILD STATUS ==="
 
-      - name: 🦼🧑‍🚧 Install deps and compile kernel 👷🚧🏗️
+      - name: 🦼🧑‍🚧 ᑕOᗰᑭIᒪE KEᖇᑎEᒪ ᗩᑎᗪ ᗰOᗪᑌᒪEᔕ 👷🚧🏗️
         run: |
           echo "KBUILD_BUILD_TIMESTAMP=1970-01-01 00:00:00" >> $GITHUB_ENV
           echo "KBUILD_BUILD_VERSION=1" >> $GITHUB_ENV
@@ -151,12 +151,13 @@ jobs:
      #     ls -la /mnt/ccache || true
      #     echo "=== END POST-BUILD STATUS ==="
 
-      - name: 🧹🪣 Cleanup useless DEB files ✨
+      - name: 🧹🪣 P͎u͎r͎g͎e͎ ͎u͎s͎l͎e͎s͎s͎ ͎D͎E͎B͎ ͎f͎i͎l͎e͎s͎ ✨
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb 2>/dev/null || true
-      - name: 𝐍𝐚𝐦𝐞 rename kernel config
+
+      - name: 𝓻𝓮𝓷𝓪𝓶𝓮 ᴋᴇʀɴᴇʟ ᴄᴏɴғɪɢ
         run: 'mv kernelconfig.new kernelconfig.${{ env._distro }}-${{ env._version }}.${{ env._cpusched }}.txt'
 
-      - name: ⬆️ Upload artifacts 💖💖
+      - name: 🙈⛅️ Upload artifacts 💾😼
         uses: actions/upload-artifact@v4
         with:
           compression-level: 8
