@@ -4,6 +4,25 @@ name: 'Build DEB (Debian)'
 
 on:
   workflow_dispatch:
+    inputs:
+      compiler:
+        description: 'Compiler to use (leave empty to use config file)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - gcc
+          - llvm
+      cpusched:
+        description: 'CPU Scheduler (leave empty to use config file)'
+        required: false
+        type: choice
+          - ''
+          - pds
+          - bmq
+          - bore
+          - cfs
+          - eevdf
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -64,13 +83,25 @@ jobs:
             exit 1
           fi
 
-          MYSCHED=$(grep "cpusched=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Determine final scheduler
+          if [ -n "${{ inputs.cpusched }}" ]; then
+            MYSCHED="${{ inputs.cpusched }}"
+            echo "Using cpusched from workflow input"
+          else
+            MYSCHED=$(grep "cpusched=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using cpusched from config file"
           echo "_cpusched=$MYSCHED" >> $GITHUB_ENV
 
           MYCCACHE=$(grep "noccache=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           echo "_noccache=$MYCCACHE" >> $GITHUB_ENV
 
-          MYCC=$(grep "compiler=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.compiler }}" ]; then
+            MYCC="${{ inputs.compiler }}"
+            echo "Using compiler from workflow input"
+          else
+            MYCC=$(grep "compiler=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using compiler from config file"
           echo "_compiler=$MYCC" >> $GITHUB_ENV
 
           MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
@@ -94,18 +125,15 @@ jobs:
       - if: ${{ env._noccache != 'true' }}
         name: 🌍 🅲🅲🅰🅲🅷🅴 🅴🅽🆅🅸🆁🅾🅽🅼🅴🅽🆃 🆅🅰🆁🅸🅰🅱🅻🅴🆂 📜
         run: |
-          echo "CCACHE_SLOPPINESS=file_macro,locale,time_macros" >> $GITHUB_ENV
-          echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESS=1" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESSLEVEL=9" >> $GITHUB_ENV
-          echo "CCACHE_DEPEND=1" >> $GITHUB_ENV
+          cat >> $GITHUB_ENV << 'EOF'
+          CCACHE_SLOPPINESS=file_macro,locale,time_macros
+          CCACHE_NOHASHDIR=true
+          CCACHE_COMPRESS=1
+          CCACHE_COMPRESSLEVEL=9
+          CCACHE_DEPEND=1
+          EOF
 
-      - if: ${{ env._noccache != 'true' }}
-        name: ǁ⚒️👷 ƈƈǟƈɦɛ ƈօʍքɨʟɛʀ ʋǟʀɨǟɮʟɛֆ 👷⚒️ǁ
-        run: |
-          if [[ "${{ env._compiler }}" == "gcc" ]]; then
-            echo "CC=ccache gcc" >> $GITHUB_ENV
-            echo "CXX=ccache g++" >> $GITHUB_ENV
+          # Set Compiler
           elif [[ "${{ env._compiler }}" == "llvm" ]]; then
             echo "CC=ccache clang" >> $GITHUB_ENV
             echo "CXX=ccache clang++" >> $GITHUB_ENV
@@ -114,14 +142,9 @@ jobs:
             echo "CXX=ccache g++" >> $GITHUB_ENV
           fi
 
-      - if: ${{ env._noccache != 'true' }}
-        name: 📂 𝐒𝖾𝗍 υρ 𝐂𝐂𝐀𝐂𝐇𝐄_𝐃𝚰𝐑
-        run: |
+          # Setup CCACHE Dir
           mkdir -p /mnt/ccache
           chown -R $USER:$USER /mnt/ccache
-          #mkdir -p ${{ github.workspace }}/.ccache
-          #sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
-          #sudo mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           df -h
 
@@ -153,11 +176,24 @@ jobs:
         run: |
           echo "KBUILD_BUILD_TIMESTAMP=1970-01-01 00:00:00" >> $GITHUB_ENV
           echo "KBUILD_BUILD_VERSION=1" >> $GITHUB_ENV
+
+          echo "Starting kernel build with:"
+          echo "  Compiler: ${{ env._compiler }}"
+          echo "  Scheduler: ${{ env._cpusched }}"
+          echo "  Version: ${{ env._version }}"
+
           set +o pipefail
           yes '' | ./install.sh install
           rc=${PIPESTATUS[1]}
           set -o pipefail
-          exit $rc
+
+
+          if [ $rc -ne 0 ]; then
+            echo "::error::Kernel build failed with exit code $rc"
+            exit $rc
+          fi
+
+          echo "Build completed successfully"
 
      # - if: ${{ env._noccache != 'true' }}
      #   name: 🪲 Debug CCACHE 🧐 (after build)
