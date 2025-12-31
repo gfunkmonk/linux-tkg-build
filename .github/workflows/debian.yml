@@ -35,7 +35,7 @@ jobs:
           large-packages: false
           tool-cache: true
 
-      - name: (づ ᴗ _ᴗ)づ𝘾𝙝𝙚𝙘𝙠𝙤𝙪𝙩 𝙧𝙚𝙥𝙤𝙨𝙞𝙩𝙤𝙧𝙮 🎁
+      - name: 🍥 𝘾𝙝𝙚𝙘𝙠𝙤𝙪𝙩 𝙧𝙚𝙥𝙤𝙨𝙞𝙩𝙤𝙧𝙮 🍥
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
