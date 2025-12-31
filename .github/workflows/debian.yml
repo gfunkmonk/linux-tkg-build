@@ -32,6 +32,16 @@ on:
           - ''
           - false
           - true
+      swapspace:
+         description: 'Swap ̳S̳p̳a̳c̳e̳'
+         required: true
+         type: choice
+         options:
+          - 4GB
+          - 5GB
+          - 9GB
+          - 10GB
+          - None
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -142,7 +152,26 @@ jobs:
       #    large-packages: false
       #    tool-cache: true
 
-      - name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+      - if: ${{ input.swapspace = '4GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 4
+
+      - if: ${{ input.swapspace = '5GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 5
+
+      - if: ${{ input.swapspace = '9GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 9
+
+      - if: ${{ input.swapspace = '10GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10

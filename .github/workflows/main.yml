@@ -4,6 +4,51 @@ name: 'Build DEB (Ubuntu)'
 
 on:
   workflow_dispatch:
+    inputs:
+      compiler:
+        description: 'Compiler to use (leave empty to use config file)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - gcc
+          - llvm
+      cpusched:
+        description: 'CPU Scheduler (leave empty to use config file)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - pds
+          - bmq
+          - bore
+          - cfs
+          - eevdf
+      noccache:
+        description: 'No CCACHE (leave empty to use config file)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - false
+          - true
+      freespace:
+         description: 'Run F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳'
+         required: true
+         type: choice
+         options:
+          - yes
+          - no
+      swapspace:
+         description: 'Swap ̳S̳p̳a̳c̳e̳'
+         required: true
+         type: choice
+         options:
+          - 4GB
+          - 5GB
+          - 9GB
+          - 10GB
+          - None
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,7 +72,8 @@ jobs:
         shell: bash
 
     steps:
-      - name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
+      - if: ${{ input.freespace = 'yes' }}
+        name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
         uses: jlumbroso/free-disk-space@main
         with:
           swap-storage: true
@@ -48,13 +94,34 @@ jobs:
             exit 1
           fi
 
-          MYSCHED=$(grep "cpusched=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Determine final scheduler
+          if [ -n "${{ inputs.cpusched }}" ]; then
+            MYSCHED="${{ inputs.cpusched }}"
+            echo "Using cpusched from workflow input"
+          else
+            MYSCHED=$(grep "cpusched=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using cpusched from config file"
+          fi
           echo "_cpusched=$MYSCHED" >> $GITHUB_ENV
 
-          MYCCACHE=$(grep "noccache=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.noccache }}" ]; then
+            MYCCACHE="${{ inputs.noccache }}"
+            echo "Using noccache from workflow input"
+          else
+            MYCCACHE=$(grep "noccache=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using noccache from config file"
+          fi
           echo "_noccache=$MYCCACHE" >> $GITHUB_ENV
 
-          MYCC=$(grep "compiler=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.compiler }}" ]; then
+            MYCC="${{ inputs.compiler }}"
+            echo "Using compiler from workflow input"
+          else
+            MYCC=$(grep "compiler=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using compiler from config file"
+          fi
           echo "_compiler=$MYCC" >> $GITHUB_ENV
 
           MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
@@ -62,6 +129,11 @@ jobs:
 
           #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
+
+          echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
+          echo "_noccache=$MYCCACHE" >> $GITHUB_OUTPUT
+          echo "_compiler=$MYCC" >> $GITHUB_OUTPUT
+          echo "_version=$MYKVER" >> $GITHUB_OUTPUT
 
       - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -72,7 +144,27 @@ jobs:
             lld pkg-config devscripts make gcc debhelper llvm clang
           version: 1.1
 
-      - name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+
+      - if: ${{ input.swapspace = '4GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 4
+
+      - if: ${{ input.swapspace = '5GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 5
+
+      - if: ${{ input.swapspace = '9GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 9
+
+      - if: ${{ input.swapspace = '10GB' }}
+        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
