@@ -74,7 +74,7 @@ jobs:
         #  version: 1.1
         run: |
           apt update -yq
-          apt install ccache sudo build-essentials -yq
+          apt install ccache sudo build-essential -yq
 
       - name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
