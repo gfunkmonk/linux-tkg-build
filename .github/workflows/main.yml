@@ -1,6 +1,6 @@
 ---
 
-name: 'Build Custom Kernel DEB'
+name: 'Build DEB (Ubuntu)'
 
 on:
   workflow_dispatch:
