@@ -1,16 +1,16 @@
---- a/Makefile  2025-12-31 03:53:36.695268276 -0500
-+++ b/Makefile  2025-12-31 03:56:48.222399101 -0500
+--- a/Makefile	2025-12-31 04:23:38.352346597 -0500
++++ b/Makefile	2025-12-31 04:24:58.655336384 -0500
 @@ -510,11 +510,8 @@
-                $(USERINCLUDE)
-
+ 		$(USERINCLUDE)
+ 
  KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
 -KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
--                  -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE \
--                  -Werror=implicit-function-declaration -Werror=implicit-int \
--                  -Werror=return-type -Wno-format-security \
--                  -std=gnu89
+-		   -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE \
+-		   -Werror=implicit-function-declaration -Werror=implicit-int \
+-		   -Werror=return-type -Wno-format-security \
+-		   -std=gnu89
 +KBUILD_CFLAGS   := -fshort-wchar -fno-strict-aliasing -fno-PIE -fno-common \
-+                  -std=gnu11
++		   -std=gnu11
  KBUILD_CPPFLAGS := -D__KERNEL__
  KBUILD_AFLAGS_KERNEL :=
  KBUILD_CFLAGS_KERNEL :=
