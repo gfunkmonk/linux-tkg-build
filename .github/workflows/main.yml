@@ -9,9 +9,7 @@ on:
         description: 'Kernel Version (leave empty to use config file)'
         required: false
         type: string
-        options:
-          - ''
-          - 6.18-latest
+        default: ''
       compiler:
         description: 'Compiler to use (leave empty to use config file)'
         required: false
@@ -20,6 +18,7 @@ on:
           - ''
           - gcc
           - llvm
+        default: ''
       cpusched:
         description: 'CPU Scheduler (leave empty to use config file)'
         required: false
@@ -33,6 +32,7 @@ on:
           - eevdf
           - upds
           - muqss
+        default: ''
       noccache:
         description: 'No CCACHE (leave empty to use config file)'
         required: false
@@ -41,23 +41,26 @@ on:
           - ''
           - false
           - true
+        default: ''
       freespace:
-         description: 'Run F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳'
-         required: true
-         type: choice
-         options:
-          - true
-          - false
+        description: 'Run F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳'
+        required: true
+        type: choice
+        options:
+         - true
+         - false
+        default: true
       swapspace:
-         description: 'Swap ̳S̳p̳a̳c̳e̳'
-         required: true
-         type: choice
-         options:
-          - 10GB
-          - 9GB
-          - 5GB
-          - 4GB
-          - None
+        description: 'Swap ̳S̳p̳a̳c̳e̳'
+        required: true
+        type: choice
+        options:
+         - 10GB
+         - 9GB
+         - 5GB
+         - 4GB
+         - None
+        default: '10GB'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -248,11 +251,28 @@ jobs:
         run: |
           echo "KBUILD_BUILD_TIMESTAMP=1970-01-01 00:00:00" >> $GITHUB_ENV
           echo "KBUILD_BUILD_VERSION=1" >> $GITHUB_ENV
+          #set +o pipefail
+          #yes '' | ./install.sh install
+          #rc=${PIPESTATUS[1]}
+          #set -o pipefail
+          #exit $rc
+
+          echo "Starting kernel build with:"
+          echo "  Compiler: ${{ env._compiler }}"
+          echo "  Scheduler: ${{ env._cpusched }}"
+          echo "  Version: ${{ env._version }}"
+
           set +o pipefail
           yes '' | ./install.sh install
           rc=${PIPESTATUS[1]}
           set -o pipefail
-          exit $rc
+
+          if [ $rc -ne 0 ]; then
+            echo "::error::Kernel build failed with exit code $rc"
+            exit $rc
+          fi
+
+          echo "Build completed successfully"
 
      # - if: ${{ env._noccache != 'true' }}
      #   name: 🪲 Debug CCACHE 🧐 (after build)
