@@ -5,6 +5,13 @@ name: 'Build DEB (Ubuntu)'
 on:
   workflow_dispatch:
     inputs:
+      version:
+        description: 'Kernel Version (leave empty to use config file)'
+        required: false
+        type: string
+        options:
+          - ''
+          - 6.18-latest
       compiler:
         description: 'Compiler to use (leave empty to use config file)'
         required: false
@@ -24,6 +31,8 @@ on:
           - bore
           - cfs
           - eevdf
+          - upds
+          - muqss
       noccache:
         description: 'No CCACHE (leave empty to use config file)'
         required: false
@@ -37,17 +46,17 @@ on:
          required: true
          type: choice
          options:
-          - yes
-          - no
+          - true
+          - false
       swapspace:
          description: 'Swap ̳S̳p̳a̳c̳e̳'
          required: true
          type: choice
          options:
-          - 4GB
-          - 5GB
-          - 9GB
           - 10GB
+          - 9GB
+          - 5GB
+          - 4GB
           - None
 
 concurrency:
@@ -72,7 +81,7 @@ jobs:
         shell: bash
 
     steps:
-      - if: ${{ input.freespace = 'yes' }}
+      - if: ${{ inputs.freespace == 'true' }}
         name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
         uses: jlumbroso/free-disk-space@main
         with:
@@ -145,25 +154,25 @@ jobs:
           version: 1.1
 
 
-      - if: ${{ input.swapspace = '4GB' }}
+      - if: ${{ inputs.swapspace == '4GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 4
 
-      - if: ${{ input.swapspace = '5GB' }}
+      - if: ${{ inputs.swapspace == '5GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 5
 
-      - if: ${{ input.swapspace = '9GB' }}
+      - if: ${{ inputs.swapspace == '9GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 9
 
-      - if: ${{ input.swapspace = '10GB' }}
+      - if: ${{ inputs.swapspace == '10GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
@@ -181,10 +190,7 @@ jobs:
       - if: ${{ env._noccache != 'true' }}
         name: ǁ⚒️👷 ƈƈǟƈɦɛ ƈօʍքɨʟɛʀ ʋǟʀɨǟɮʟɛֆ 👷⚒️ǁ
         run: |
-          if [[ "${{ env._compiler }}" == "gcc" ]]; then
-            echo "CC=ccache gcc" >> $GITHUB_ENV
-            echo "CXX=ccache g++" >> $GITHUB_ENV
-          elif [[ "${{ env._compiler }}" == "llvm" ]]; then
+          if [[ "${{ env._compiler }}" == "llvm" ]]; then
             echo "CC=ccache clang" >> $GITHUB_ENV
             echo "CXX=ccache clang++" >> $GITHUB_ENV
           else

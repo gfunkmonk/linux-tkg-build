@@ -97,6 +97,7 @@ jobs:
         run: git status
 
       - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ ƒяσм ¢σηƒιg  . . ﹫
+        id: config  # Added ID so GITHUB_OUTPUT works
         run: |
           export CFG="customization.cfg"
 
@@ -152,25 +153,25 @@ jobs:
       #    large-packages: false
       #    tool-cache: true
 
-      - if: ${{ input.swapspace = '4GB' }}
+      - if: ${{ inputs.swapspace == '4GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 4
 
-      - if: ${{ input.swapspace = '5GB' }}
+      - if: ${{ inputs.swapspace == '5GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 5
 
-      - if: ${{ input.swapspace = '9GB' }}
+      - if: ${{ inputs.swapspace == '9GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 9
 
-      - if: ${{ input.swapspace = '10GB' }}
+      - if: ${{ inputs.swapspace == '10GB' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
@@ -188,7 +189,7 @@ jobs:
           EOF
 
           # Set Compiler
-          elif [[ "${{ env._compiler }}" == "llvm" ]]; then
+          if [[ "${{ env._compiler }}" == "llvm" ]]; then
             echo "CC=ccache clang" >> $GITHUB_ENV
             echo "CXX=ccache clang++" >> $GITHUB_ENV
           else
