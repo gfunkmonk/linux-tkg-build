@@ -5,6 +5,26 @@ name: 'Build DEB (Debian)'
 on:
   workflow_dispatch:
     inputs:
+      debver:
+        description: 'Debian version to use'
+        required: true
+        type: choice
+        options:
+          - bullseye
+          - bookworm
+          - trixie
+          - forky
+          - sid
+          - stable
+          - testing
+          - unstable
+          - experimental
+        default: trixie
+      version:
+        description: 'Kernel Version (leave empty to use config file)'
+        required: false
+        type: string
+        default: ''
       compiler:
         description: 'Compiler to use (leave empty to use config file)'
         required: false
@@ -13,6 +33,7 @@ on:
           - ''
           - gcc
           - llvm
+        default: ''
       cpusched:
         description: 'CPU Scheduler (leave empty to use config file)'
         required: false
@@ -24,6 +45,9 @@ on:
           - bore
           - cfs
           - eevdf
+          - upds
+          - muqss
+        default: ''
       noccache:
         description: 'No CCACHE (leave empty to use config file)'
         required: false
@@ -32,6 +56,7 @@ on:
           - ''
           - false
           - true
+        default: ''
       swapspace:
          description: 'Swap ̳S̳p̳a̳c̳e̳'
          required: true
@@ -42,6 +67,7 @@ on:
           - 9GB
           - 10GB
           - None
+         default: None
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -61,7 +87,7 @@ jobs:
     timeout-minutes: 360
     runs-on: ubuntu-latest
     container:
-      image: debian:latest
+      image: debian:${{ inputs.debver }}
       volumes:
         - /mnt:/mnt
       options: --user root
@@ -136,8 +162,18 @@ jobs:
           fi
           echo "_compiler=$MYCC" >> $GITHUB_ENV
 
-          MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.version }}" ]; then
+            MYKVER="${{ inputs.version }}"
+            echo "Using version from workflow input"
+          else
+            MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using version from config file"
+          fi
           echo "_version=$MYKVER" >> $GITHUB_ENV
+
+          #MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          #echo "_version=$MYKVER" >> $GITHUB_ENV
 
           #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
