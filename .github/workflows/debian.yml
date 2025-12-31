@@ -17,12 +17,21 @@ on:
         description: 'CPU Scheduler (leave empty to use config file)'
         required: false
         type: choice
+        options:
           - ''
           - pds
           - bmq
           - bore
           - cfs
           - eevdf
+      noccache:
+        description: 'No CCACHE (leave empty to use config file)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - false
+          - true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -45,6 +54,7 @@ jobs:
       image: debian:latest
       volumes:
         - /mnt:/mnt
+      options: --user root
     defaults:
       run:
         shell: bash
@@ -92,9 +102,17 @@ jobs:
           else
             MYSCHED=$(grep "cpusched=" $CFG | sed 's/"//g' | cut -d "=" -f2)
             echo "Using cpusched from config file"
+          fi
           echo "_cpusched=$MYSCHED" >> $GITHUB_ENV
 
-          MYCCACHE=$(grep "noccache=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.noccache }}" ]; then
+            MYCCACHE="${{ inputs.noccache }}"
+            echo "Using noccache from workflow input"
+          else
+            MYCCACHE=$(grep "noccache=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using noccache from config file"
+          fi
           echo "_noccache=$MYCCACHE" >> $GITHUB_ENV
 
           # Use input if provided, otherwise use config
@@ -104,6 +122,7 @@ jobs:
           else
             MYCC=$(grep "compiler=" $CFG | sed 's/"//g' | cut -d "=" -f2)
             echo "Using compiler from config file"
+          fi
           echo "_compiler=$MYCC" >> $GITHUB_ENV
 
           MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
@@ -111,6 +130,10 @@ jobs:
 
           #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
+          echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
+          echo "_noccache=$MYCCACHE" >> $GITHUB_OUTPUT
+          echo "_compiler=$MYCC" >> $GITHUB_OUTPUT
+          echo "_version=$MYKVER" >> $GITHUB_OUTPUT
 
       #- name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
       #  uses: jlumbroso/free-disk-space@main
