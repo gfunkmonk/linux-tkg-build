@@ -22,7 +22,7 @@ jobs:
   build_kernel:
     timeout-minutes: 360
     runs-on: ubuntu-latest
-    container: debian:latest
+    container: debian:testing
     defaults:
       run:
         shell: bash
