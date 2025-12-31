@@ -27,7 +27,7 @@ jobs:
       run:
         shell: bash
 
-    #steps:
+    steps:
     #  - name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
     #    uses: jlumbroso/free-disk-space@main
     #    with:
