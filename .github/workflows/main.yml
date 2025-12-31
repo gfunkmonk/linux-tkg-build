@@ -196,15 +196,9 @@ jobs:
           fi
           echo "_timer_freq=$MYTIMERF" >> $GITHUB_ENV
 
-          #MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-          #echo "_version=$MYKVER" >> $GITHUB_ENV
-
-          #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-          #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
-
           # Generate kernel compression config fragment
           if [[ "${{ inputs.kernelcomp }}" == "zstd" ]]; then
-            cat >> kernelcomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/kernelcomp.myfrag << 'EOF'
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -214,7 +208,7 @@ jobs:
             CONFIG_KERNEL_ZSTD=y
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "xz" ]]; then
-            cat >> kernelcomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/kernelcomp.myfrag << 'EOF'
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -224,7 +218,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lzma" ]]; then
-            cat >> kernelcomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/kernelcomp.myfrag << 'EOF'
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             CONFIG_KERNEL_LZMA=y
@@ -234,7 +228,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lz4" ]]; then
-            cat >> kernelcomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/kernelcomp.myfrag << 'EOF'
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -244,7 +238,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lzo" ]]; then
-            cat >> kernelcomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/kernelcomp.myfrag << 'EOF'
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -254,7 +248,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "bzip2" ]]; then
-            cat >> kernelcomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/kernelcomp.myfrag << 'EOF'
             # CONFIG_KERNEL_GZIP is not set
             CONFIG_KERNEL_BZIP2=y
             # CONFIG_KERNEL_LZMA is not set
@@ -264,7 +258,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "gzip" ]]; then
-            cat >> kernelcomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/kernelcomp.myfrag << 'EOF'
             CONFIG_KERNEL_GZIP=y
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -276,19 +270,19 @@ jobs:
           fi
 
           if [[ "${{ inputs.modulecomp }}" == "zstd" ]]; then
-            cat >> modulecomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/modulecomp.myfrag << 'EOF'
             # CONFIG_MODULE_COMPRESS_GZIP is not set
             # CONFIG_MODULE_COMPRESS_XZ is not set
             CONFIG_MODULE_COMPRESS_ZSTD=y
             EOF
           elif [[ "${{ inputs.modulecomp }}" == "xz" ]]; then
-            cat >> modulecomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/modulecomp.myfrag << 'EOF'
             # CONFIG_MODULE_COMPRESS_GZIP is not set
             CONFIG_MODULE_COMPRESS_XZ=y
             # CONFIG_MODULE_COMPRESS_ZSTD is not set
             EOF
           elif [[ "${{ inputs.modulecomp }}" == "gzip" ]]; then
-            cat >> modulecomp.myfrag << 'EOF'
+            cat >> ${{ github.workspace }}/modulecomp.myfrag << 'EOF'
             CONFIG_MODULE_COMPRESS_GZIP=y
             # CONFIG_MODULE_COMPRESS_XZ is not set
             # CONFIG_MODULE_COMPRESS_ZSTD is not set
