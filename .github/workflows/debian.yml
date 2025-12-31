@@ -16,12 +16,13 @@ env:
   _modprobeddb_db_path: ${{ github.workspace }}/modprobed.db
   _kernel_work_folder: "/tmp"
   _kernel_source_folder: "/tmp"
-  _distro: "Ubuntu"
+  _distro: "Debian"
 
 jobs:
   build_kernel:
     timeout-minutes: 360
     runs-on: ubuntu-latest
+    container: debian-latest
     defaults:
       run:
         shell: bash

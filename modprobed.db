@@ -13,6 +13,7 @@ ata_piix
 aufs
 autofs4
 b43
+bcachefs
 bcma
 binfmt_misc
 bluetooth
@@ -144,6 +145,7 @@ nvram
 ohci-hcd
 phram
 pkcs8_key_parser
+r8125
 r8152
 raid0
 raid1
@@ -196,6 +198,7 @@ tcp_nv
 tcp_scalable
 tcp_veno
 tg3
+tls
 tun
 uas
 ucsi_acpi
