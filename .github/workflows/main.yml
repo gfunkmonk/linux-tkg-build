@@ -60,8 +60,8 @@ jobs:
           MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           echo "_version=$MYKVER" >> $GITHUB_ENV
 
-          MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-          echo "_distro=$MYDISTRO" >> $GITHUB_ENV
+          #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
 
       - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
         uses: awalsh128/cache-apt-pkgs-action@latest
