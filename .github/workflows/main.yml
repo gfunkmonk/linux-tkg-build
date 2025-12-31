@@ -153,6 +153,11 @@ jobs:
           #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
 
+          if [[ ${{ _cpusched == 'muqss' }} ]]; then
+            echo "_kernel_on_diet=false" >> $GITHUB_ENV
+            echo "_modprobeddb=true" >> $GITHUB_ENV
+          fi
+
           echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
           echo "_noccache=$MYCCACHE" >> $GITHUB_OUTPUT
           echo "_compiler=$MYCC" >> $GITHUB_OUTPUT
