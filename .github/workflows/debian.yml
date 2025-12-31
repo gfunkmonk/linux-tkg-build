@@ -73,10 +73,10 @@ jobs:
             lld pkg-config devscripts make gcc debhelper llvm clang
           version: 1.1
 
-      - name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 10
+      #- name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+      #  uses: pierotofy/set-swap-space@master
+      #  with:
+      #    swap-size-gb: 10
 
       - if: ${{ env._noccache != 'true' }}
         name: 🌍 🅲🅲🅰🅲🅷🅴 🅴🅽🆅🅸🆁🅾🅽🅼🅴🅽🆃 🆅🅰🆁🅸🅰🅱🅻🅴🆂 📜
