@@ -70,17 +70,17 @@ jobs:
           apt update -yq
           apt install ccache sudo build-essential bc bison cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc debhelper procps coreutils -yq
 
-      - name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
-        uses: jlumbroso/free-disk-space@main
-        with:
-          swap-storage: true
-          large-packages: false
-          tool-cache: true
+      #- name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
+      #  uses: jlumbroso/free-disk-space@main
+      #  with:
+      #    swap-storage: true
+      #    large-packages: false
+      #    tool-cache: true
 
-      - name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 10
+      #- name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
+      #  uses: pierotofy/set-swap-space@master
+      #  with:
+      #    swap-size-gb: 10
 
       - if: ${{ env._noccache != 'true' }}
         name: 🌍 🅲🅲🅰🅲🅷🅴 🅴🅽🆅🅸🆁🅾🅽🅼🅴🅽🆃 🆅🅰🆁🅸🅰🅱🅻🅴🆂 📜
@@ -105,16 +105,16 @@ jobs:
             echo "CXX=ccache g++" >> $GITHUB_ENV
           fi
 
-      - if: ${{ env._noccache != 'true' }}
-        name: 📂 𝐒𝖾𝗍 υρ 𝐂𝐂𝐀𝐂𝐇𝐄_𝐃𝚰𝐑
-        run: |
-          sudo mkdir -p /mnt/ccache
-          sudo chown -R $USER:$USER /mnt/ccache
+      #- if: ${{ env._noccache != 'true' }}
+      #  name: 📂 𝐒𝖾𝗍 υρ 𝐂𝐂𝐀𝐂𝐇𝐄_𝐃𝚰𝐑
+      #  run: |
+      #    sudo mkdir -p /mnt/ccache
+      #    sudo chown -R $USER:$USER /mnt/ccache
           #mkdir -p ${{ github.workspace }}/.ccache
           #sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
           #sudo mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
-          echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
-          df -h
+      #    echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
+      #    df -h
 
       - if: ${{ env._noccache != 'true' }}
         name: ➰🐠 CCACHE 💨🐇
