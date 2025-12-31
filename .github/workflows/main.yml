@@ -94,7 +94,8 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ ƒяσм ¢σηƒιg  . . ﹫
+      - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ  . . ﹫
+        id: config
         run: |
           export CFG="customization.cfg"
 
@@ -103,7 +104,7 @@ jobs:
             exit 1
           fi
 
-          # Determine final scheduler
+          # Use input if provided, otherwise use config
           if [ -n "${{ inputs.cpusched }}" ]; then
             MYSCHED="${{ inputs.cpusched }}"
             echo "Using cpusched from workflow input"
@@ -133,8 +134,18 @@ jobs:
           fi
           echo "_compiler=$MYCC" >> $GITHUB_ENV
 
-          MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.version }}" ]; then
+            MYKVER="${{ inputs.version }}"
+            echo "Using version from workflow input"
+          else
+            MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using version from config file"
+          fi
           echo "_version=$MYKVER" >> $GITHUB_ENV
+
+          #MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+          #echo "_version=$MYKVER" >> $GITHUB_ENV
 
           #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
