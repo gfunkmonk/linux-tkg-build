@@ -272,8 +272,8 @@ jobs:
       - if: ${{ env._cpusched == 'muqss' }}
         name: gcc stuff
         run: |
-          apt update
-          apt install gcc-12 g++-12
+          apt update -yq
+          apt install gcc-12 g++-12 -yq
           echo "CC=gcc-12" >> $GITHUB_ENV
           echo "CXX=g++-12" >> $GITHUB_ENV
 
