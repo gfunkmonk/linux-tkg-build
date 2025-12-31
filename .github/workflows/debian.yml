@@ -23,24 +23,26 @@ jobs:
     timeout-minutes: 360
     runs-on: ubuntu-latest
     container: debian:testing
+      volumes: /mnt:/mnt
     defaults:
       run:
         shell: bash
 
     steps:
 
-      - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
-        #uses: awalsh128/cache-apt-pkgs-action@latest
-        #with:
-        #  execute_install_scripts: true
-        #  packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev
-        #    libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd
-        #    lld pkg-config devscripts make gcc debhelper llvm clang
-        #  version: 1.1
+      - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 1📦📦
         run: |
           apt update -yq
-          apt install ccache sudo build-essential bc procps coreutils make git wget devscripts -yq
-#bison cpio fakeroot flex git kmod libdw-dev libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd lld pkg-config devscripts make gcc debhelper procps coreutils -yq
+          apt install ccache sudo procps coreutils git -yq
+
+      - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 2📦📦
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          execute_install_scripts: true
+          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev
+            libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd
+            lld pkg-config devscripts make gcc debhelper llvm clang
+          version: 1.1
 
       - name: 🌀🍥 𝘾𝙝𝙚𝙘𝙠𝙤𝙪𝙩 𝙧𝙚𝙥𝙤𝙨𝙞𝙩𝙤𝙧𝙮 🍥🌀
         uses: actions/checkout@v4
@@ -77,12 +79,12 @@ jobs:
           #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
 
-      - name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
-        uses: jlumbroso/free-disk-space@main
-        with:
-          swap-storage: true
-          large-packages: false
-          tool-cache: true
+      #- name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
+      #  uses: jlumbroso/free-disk-space@main
+      #  with:
+      #    swap-storage: true
+      #    large-packages: false
+      #    tool-cache: true
 
       - name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
