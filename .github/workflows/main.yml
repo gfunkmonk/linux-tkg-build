@@ -252,6 +252,14 @@ jobs:
       #    env | grep -i ccache || true
       #    echo "=== END PRE-BUILD STATUS ==="
 
+      - if: ${{ env._cpusched == 'muqss' }}
+        name: gcc stuff
+        run: |
+          apt update
+          apt install gcc-12 g++-12
+          echo "CC=gcc-12" >> $GITHUB_ENV
+          echo "CXX=g++-12" >> $GITHUB_ENV
+
       - name: 🦼🧑‍🚧 ᑕOᗰᑭIᒪE KEᖇᑎEᒪ ᗩᑎᗪ ᗰOᗪᑌᒪEᔕ 👷🚧🏗️
         run: |
           echo "KBUILD_BUILD_TIMESTAMP=1970-01-01 00:00:00" >> $GITHUB_ENV
