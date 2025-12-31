@@ -15,12 +15,12 @@ on:
           - 22.04
         default: latest
       version:
-        description: 'Kernel Version (leave empty to use config file)'
+        description: 'Kernel Version'
         required: false
         type: string
         default: ''
       compiler:
-        description: 'Compiler to use (leave empty to use config file)'
+        description: 'Compiler to use'
         required: false
         type: choice
         options:
@@ -29,7 +29,7 @@ on:
           - llvm
         default: ''
       cpusched:
-        description: 'CPU Scheduler (leave empty to use config file)'
+        description: 'CPU Scheduler'
         required: false
         type: choice
         options:
@@ -39,11 +39,9 @@ on:
           - bore
           - cfs
           - eevdf
-          - upds
-          - muqss
         default: ''
       noccache:
-        description: 'No CCACHE (leave empty to use config file)'
+        description: 'Disable CCACHE'
         required: false
         type: choice
         options:
@@ -58,18 +56,37 @@ on:
         options:
          - true
          - false
-        default: true
+        default: false
       swapspace:
-        description: 'Swap ̳S̳p̳a̳c̳e̳'
+        description: 'Add Swap ̳S̳p̳a̳c̳e̳'
         required: true
         type: choice
         options:
-         - 10GB
-         - 9GB
-         - 5GB
-         - 4GB
-         - None
-        default: '10GB'
+          - true
+          - false
+        default: false
+      kernelcomp:
+        description: 'Compression for Kernel Image'
+        required: false
+        type: choice
+        options:
+          - zstd
+          - xz
+          - lz4
+          - lzma
+          - lzo
+          - bzip2
+          - gzip
+        default: zstd
+      modulecomp:
+        description: 'Compression for Modules'
+        required: false
+        type: choice
+        options:
+          - zstd
+          - xz
+          - gzip
+        default: zstd
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -162,9 +179,97 @@ jobs:
           #MYDISTRO=$(grep "distro=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_distro=$MYDISTRO" >> $GITHUB_ENV
 
-          if [[ ${{ env._cpusched == 'muqss' }} ]]; then
-            echo "_kernel_on_diet=false" >> $GITHUB_ENV
-            echo "_modprobeddb=true" >> $GITHUB_ENV
+          # Generate kernel compression config fragment
+          if [[ "${{ inputs.kernelcomp }}" == "zstd" ]]; then
+            cat >> kernelcomp.myfrag << 'EOF'
+            # CONFIG_KERNEL_GZIP is not set
+            # CONFIG_KERNEL_BZIP2 is not set
+            # CONFIG_KERNEL_LZMA is not set
+            # CONFIG_KERNEL_XZ is not set
+            # CONFIG_KERNEL_LZO is not set
+            # CONFIG_KERNEL_LZ4 is not set
+            CONFIG_KERNEL_ZSTD=y
+            EOF
+          elif [[ "${{ inputs.kernelcomp }}" == "xz" ]]; then
+            cat >> kernelcomp.myfrag << 'EOF'
+            # CONFIG_KERNEL_GZIP is not set
+            # CONFIG_KERNEL_BZIP2 is not set
+            # CONFIG_KERNEL_LZMA is not set
+            CONFIG_KERNEL_XZ=y
+            # CONFIG_KERNEL_LZO is not set
+            # CONFIG_KERNEL_LZ4 is not set
+            # CONFIG_KERNEL_ZSTD is not set
+            EOF
+          elif [[ "${{ inputs.kernelcomp }}" == "lzma" ]]; then
+            cat >> kernelcomp.myfrag << 'EOF'
+            # CONFIG_KERNEL_GZIP is not set
+            # CONFIG_KERNEL_BZIP2 is not set
+            CONFIG_KERNEL_LZMA=y
+            # CONFIG_KERNEL_XZ is not set
+            # CONFIG_KERNEL_LZO is not set
+            # CONFIG_KERNEL_LZ4 is not set
+            # CONFIG_KERNEL_ZSTD is not set
+            EOF
+          elif [[ "${{ inputs.kernelcomp }}" == "lz4" ]]; then
+            cat >> kernelcomp.myfrag << 'EOF'
+            # CONFIG_KERNEL_GZIP is not set
+            # CONFIG_KERNEL_BZIP2 is not set
+            # CONFIG_KERNEL_LZMA is not set
+            # CONFIG_KERNEL_XZ is not set
+            # CONFIG_KERNEL_LZO is not set
+            CONFIG_KERNEL_LZ4=y
+            # CONFIG_KERNEL_ZSTD is not set
+            EOF
+          elif [[ "${{ inputs.kernelcomp }}" == "lzo" ]]; then
+            cat >> kernelcomp.myfrag << 'EOF'
+            # CONFIG_KERNEL_GZIP is not set
+            # CONFIG_KERNEL_BZIP2 is not set
+            # CONFIG_KERNEL_LZMA is not set
+            # CONFIG_KERNEL_XZ is not set
+            CONFIG_KERNEL_LZO=y
+            # CONFIG_KERNEL_LZ4 is not set
+            # CONFIG_KERNEL_ZSTD is not set
+            EOF
+          elif [[ "${{ inputs.kernelcomp }}" == "bzip2" ]]; then
+            cat >> kernelcomp.myfrag << 'EOF'
+            # CONFIG_KERNEL_GZIP is not set
+            CONFIG_KERNEL_BZIP2=y
+            # CONFIG_KERNEL_LZMA is not set
+            # CONFIG_KERNEL_XZ is not set
+            # CONFIG_KERNEL_LZO is not set
+            # CONFIG_KERNEL_LZ4 is not set
+            # CONFIG_KERNEL_ZSTD is not set
+            EOF
+          elif [[ "${{ inputs.kernelcomp }}" == "gzip" ]]; then
+            cat >> kernelcomp.myfrag << 'EOF'
+            CONFIG_KERNEL_GZIP=y
+            # CONFIG_KERNEL_BZIP2 is not set
+            # CONFIG_KERNEL_LZMA is not set
+            # CONFIG_KERNEL_XZ is not set
+            # CONFIG_KERNEL_LZO is not set
+            # CONFIG_KERNEL_LZ4 is not set
+            # CONFIG_KERNEL_ZSTD is not set
+            EOF
+          fi
+
+          if [[ "${{ inputs.modulecomp }}" == "zstd" ]]; then
+            cat >> modulecomp.myfrag << 'EOF'
+            # CONFIG_MODULE_COMPRESS_GZIP is not set
+            # CONFIG_MODULE_COMPRESS_XZ is not set
+            CONFIG_MODULE_COMPRESS_ZSTD=y
+            EOF
+          elif [[ "${{ inputs.modulecomp }}" == "xz" ]]; then
+            cat >> modulecomp.myfrag << 'EOF'
+            # CONFIG_MODULE_COMPRESS_GZIP is not set
+            CONFIG_MODULE_COMPRESS_XZ=y
+            # CONFIG_MODULE_COMPRESS_ZSTD is not set
+            EOF
+          elif [[ "${{ inputs.modulecomp }}" == "gzip" ]]; then
+            cat >> modulecomp.myfrag << 'EOF'
+            CONFIG_MODULE_COMPRESS_GZIP=y
+            # CONFIG_MODULE_COMPRESS_XZ is not set
+            # CONFIG_MODULE_COMPRESS_ZSTD is not set
+            EOF
           fi
 
           echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
@@ -182,25 +287,7 @@ jobs:
           version: 1.1
 
 
-      - if: ${{ inputs.swapspace == '4GB' }}
-        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 4
-
-      - if: ${{ inputs.swapspace == '5GB' }}
-        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 5
-
-      - if: ${{ inputs.swapspace == '9GB' }}
-        name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 9
-
-      - if: ${{ inputs.swapspace == '10GB' }}
+      - if: ${{ inputs.swapspace == 'true' }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
@@ -209,15 +296,15 @@ jobs:
       - if: ${{ env._noccache != 'true' }}
         name: 🌍 🅲🅲🅰🅲🅷🅴 🅴🅽🆅🅸🆁🅾🅽🅼🅴🅽🆃 🆅🅰🆁🅸🅰🅱🅻🅴🆂 📜
         run: |
-          echo "CCACHE_SLOPPINESS=file_macro,locale,time_macros" >> $GITHUB_ENV
-          echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESS=1" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESSLEVEL=9" >> $GITHUB_ENV
-          echo "CCACHE_DEPEND=1" >> $GITHUB_ENV
-
-      - if: ${{ env._noccache != 'true' }}
-        name: ǁ⚒️👷 ƈƈǟƈɦɛ ƈօʍքɨʟɛʀ ʋǟʀɨǟɮʟɛֆ 👷⚒️ǁ
-        run: |
+          cat >> $GITHUB_ENV << 'EOF'
+          CCACHE_SLOPPINESS=file_macro,locale,time_macros
+          CCACHE_NOHASHDIR=true
+          CCACHE_COMPRESS=1
+          CCACHE_COMPRESSLEVEL=9
+          CCACHE_DEPEND=1
+          EOF
+          echo "CCACHE Environment set!"
+          # Set Compiler
           if [[ "${{ env._compiler }}" == "llvm" ]]; then
             echo "CC=ccache clang" >> $GITHUB_ENV
             echo "CXX=ccache clang++" >> $GITHUB_ENV
@@ -225,17 +312,24 @@ jobs:
             echo "CC=ccache gcc" >> $GITHUB_ENV
             echo "CXX=ccache g++" >> $GITHUB_ENV
           fi
+          echo "CCACHE Compilers set!"
 
-      - if: ${{ env._noccache != 'true' }}
-        name: 📂 𝐒𝖾𝗍 υρ 𝐂𝐂𝐀𝐂𝐇𝐄_𝐃𝚰𝐑
-        run: |
+          # Setup CCACHE Dir
           sudo mkdir -p /mnt/ccache
           sudo chown -R $USER:$USER /mnt/ccache
-          #mkdir -p ${{ github.workspace }}/.ccache
-          #sudo chown -R $USER:$USER ${{ github.workspace }}/.ccache
-          #sudo mount --bind /mnt/ccache ${{ github.workspace }}/.ccache
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
+          echo "CCACHE Dir Set!"
           df -h
+
+          echo "CCACHE Variables:"
+          echo "CCACHE_SLOPPINESS=${{ env.CCACHE_SLOPPINESS }}"
+          echo "CCACHE_NOHASHDIR=${{ env.CCACHE_NOHASHDIR }}"
+          echo "CCACHE_COMPRESS=${{ env.CCACHE_COMPRESS }}"
+          echo "CCACHE_COMPRESSLEVEL=${{ env.CCACHE_COMPRESSLEVEL }}"
+          echo "CCACHE_DEPEND=${{ env.CCACHE_DEPEND }}"
+          echo "CC=${{ env.CC }}"
+          echo "CXX=${{ env.CC }}"
+          echo "CCACHE_DIR=${{ env.CCACHE_DIR }}"
 
       - if: ${{ env._noccache != 'true' }}
         name: ➰🐠 CCACHE 💨🐇
@@ -249,32 +343,17 @@ jobs:
             kernel-build-${{ runner.os }}-
           verbose: 2
 
-      #- if: ${{ env._noccache != 'true' }}
-      #  name: 🪳 Debug CCACHE + compiler 🤔 (before build)
-      #  run: |
-      #    echo "=== PRE-BUILD CCACHE STATUS ==="
-      #    echo "CCACHE_DIR=$CCACHE_DIR"
-      #    ccache -s || true
-      #    echo "which gcc -> $(which gcc || true)"
-      #    if [ -x "$(which gcc 2>/dev/null)" ]; then ls -l "$(which gcc)"; fi
-      #    echo "PATH=$PATH"
-      #    env | grep -i ccache || true
-      #    echo "=== END PRE-BUILD STATUS ==="
-
       - name: 🦼🧑‍🚧 ᑕOᗰᑭIᒪE KEᖇᑎEᒪ ᗩᑎᗪ ᗰOᗪᑌᒪEᔕ 👷🚧🏗️
         run: |
           echo "KBUILD_BUILD_TIMESTAMP=1970-01-01 00:00:00" >> $GITHUB_ENV
           echo "KBUILD_BUILD_VERSION=1" >> $GITHUB_ENV
-          #set +o pipefail
-          #yes '' | ./install.sh install
-          #rc=${PIPESTATUS[1]}
-          #set -o pipefail
-          #exit $rc
 
           echo "Starting kernel build with:"
           echo "  Compiler: ${{ env._compiler }}"
           echo "  Scheduler: ${{ env._cpusched }}"
           echo "  Version: ${{ env._version }}"
+          echo "  Kernel Compression: ${{ inputs.kernelcomp }}"
+          echo "  Module Compression: ${{ inputs.modulecomp }}"
 
           set +o pipefail
           yes '' | ./install.sh install
@@ -287,15 +366,6 @@ jobs:
           fi
 
           echo "Build completed successfully"
-
-     # - if: ${{ env._noccache != 'true' }}
-     #   name: 🪲 Debug CCACHE 🧐 (after build)
-     #   run: |
-     #     echo "=== POST-BUILD CCACHE STATUS ==="
-     #     ccache -s || true
-     #     du -sh /mnt/ccache || true
-     #     ls -la /mnt/ccache || true
-     #     echo "=== END POST-BUILD STATUS ==="
 
       - name: 🧹🪣 P͎u͎r͎g͎e͎ ͎u͎s͎l͎e͎s͎s͎ ͎D͎E͎B͎ ͎f͎i͎l͎e͎s͎ ✨
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb 2>/dev/null || true
