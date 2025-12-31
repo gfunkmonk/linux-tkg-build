@@ -40,6 +40,19 @@ on:
           - cfs
           - eevdf
         default: ''
+      timerfreq:
+        description: 'Timer Frequency'
+        required: false
+        type: choice
+        options:
+          - ''
+          - 100
+          - 250
+          - 300
+          - 500
+          - 750
+          - 1000
+        default: ''
       noccache:
         description: 'Disable CCACHE'
         required: false
@@ -173,6 +186,16 @@ jobs:
           fi
           echo "_version=$MYKVER" >> $GITHUB_ENV
 
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.timerfreq }}" ]; then
+            MYTIMERF="${{ inputs.timerfreq }}"
+            echo "Using timer_freq from workflow input"
+          else
+            MYTIMERF=$(grep "timer_freq=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using timer_freq from config file"
+          fi
+          echo "_timer_freq=$MYTIMERF" >> $GITHUB_ENV
+
           #MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           #echo "_version=$MYKVER" >> $GITHUB_ENV
 
@@ -276,6 +299,7 @@ jobs:
           echo "_noccache=$MYCCACHE" >> $GITHUB_OUTPUT
           echo "_compiler=$MYCC" >> $GITHUB_OUTPUT
           echo "_version=$MYKVER" >> $GITHUB_OUTPUT
+          echo "_timer_freq=$MYTIMERF" >> $GITHUB_OUTPUT
 
       - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
         uses: awalsh128/cache-apt-pkgs-action@latest
