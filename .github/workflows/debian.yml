@@ -41,8 +41,10 @@ jobs:
   build_kernel:
     timeout-minutes: 360
     runs-on: ubuntu-latest
-    container: debian:testing
-      volumes: /mnt:/mnt
+    container:
+      image: debian:latest
+      volumes:
+        - /mnt:/mnt
     defaults:
       run:
         shell: bash
