@@ -5,6 +5,14 @@ name: 'Build DEB (Ubuntu)'
 on:
   workflow_dispatch:
     inputs:
+      ubuntuver:
+        description: 'Ubuntu Version'
+        required: true
+        type: choice
+          - latest
+          - 24.04
+          - 22.04
+        default: latest
       version:
         description: 'Kernel Version (leave empty to use config file)'
         required: false
@@ -78,7 +86,7 @@ env:
 jobs:
   build_kernel:
     timeout-minutes: 360
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-${{ inputs.ubuntuver }}
     defaults:
       run:
         shell: bash
