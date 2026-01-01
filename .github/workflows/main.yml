@@ -198,7 +198,7 @@ jobs:
 
           # Generate kernel compression config fragment
           if [[ "${{ inputs.kernelcomp }}" == "zstd" ]]; then
-            cat >> ${{ github.workspace }}/kernelcomp.myfrag <<EOF
+            cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -208,7 +208,7 @@ jobs:
             CONFIG_KERNEL_ZSTD=y
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "xz" ]]; then
-            cat >> ${{ github.workspace }}/kernelcomp.myfrag <<EOF
+            cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -218,7 +218,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lzma" ]]; then
-            cat >> ${{ github.workspace }}/kernelcomp.myfrag <<EOF
+            cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             CONFIG_KERNEL_LZMA=y
@@ -228,7 +228,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lz4" ]]; then
-            cat >> ${{ github.workspace }}/kernelcomp.myfrag <<EOF
+            cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -238,7 +238,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lzo" ]]; then
-            cat >> ${{ github.workspace }}/kernelcomp.myfrag <<EOF
+            cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -248,7 +248,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "bzip2" ]]; then
-            cat >> ${{ github.workspace }}/kernelcomp.myfrag <<EOF
+            cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
             CONFIG_KERNEL_BZIP2=y
             # CONFIG_KERNEL_LZMA is not set
@@ -258,7 +258,7 @@ jobs:
             # CONFIG_KERNEL_ZSTD is not set
             EOF
           elif [[ "${{ inputs.kernelcomp }}" == "gzip" ]]; then
-            cat >> ${{ github.workspace }}/kernelcomp.myfrag <<EOF
+            cat <<-EOF > kernelcomp.myfrag
             CONFIG_KERNEL_GZIP=y
             # CONFIG_KERNEL_BZIP2 is not set
             # CONFIG_KERNEL_LZMA is not set
@@ -270,19 +270,19 @@ jobs:
           fi
 
           if [[ "${{ inputs.modulecomp }}" == "zstd" ]]; then
-            cat >> ${{ github.workspace }}/modulecomp.myfrag <<EOF
+            cat <<-EOF > modulecomp.myfrag
             # CONFIG_MODULE_COMPRESS_GZIP is not set
             # CONFIG_MODULE_COMPRESS_XZ is not set
             CONFIG_MODULE_COMPRESS_ZSTD=y
             EOF
           elif [[ "${{ inputs.modulecomp }}" == "xz" ]]; then
-            cat >> ${{ github.workspace }}/modulecomp.myfrag <<EOF
+            cat <<-EOF > modulecomp.myfrag
             # CONFIG_MODULE_COMPRESS_GZIP is not set
             CONFIG_MODULE_COMPRESS_XZ=y
             # CONFIG_MODULE_COMPRESS_ZSTD is not set
             EOF
           elif [[ "${{ inputs.modulecomp }}" == "gzip" ]]; then
-            cat >> ${{ github.workspace }}/modulecomp.myfrag <<EOF
+            cat <<-EOF > modulecomp.myfrag
             CONFIG_MODULE_COMPRESS_GZIP=y
             # CONFIG_MODULE_COMPRESS_XZ is not set
             # CONFIG_MODULE_COMPRESS_ZSTD is not set
