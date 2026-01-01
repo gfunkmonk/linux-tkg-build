@@ -104,6 +104,14 @@ on:
           - config_hardened.x86_64
           - config.mydef
         default: 'config.x86_64'
+      kernel_on_diet:
+        description: 'Kernel on diet'
+          required: false
+          type: boolean
+      modprobeddb:
+        description: 'modprobed-db'
+          required: false
+          type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -256,12 +264,21 @@ jobs:
             sed -i 's/CONFIG_MODULE_COMPRESS_XZ=y/# CONFIG_MODULE_COMPRESS_XZ is not set/' ${{ github.workspace }}/$MYCONFIG
           fi
 
+          if ${{ inputs.kernel_on_diet }}; then
+          echo "_modprobeddb=false" >> $GITHUB_ENV
+          echo "_kernel_on_diet=true" >> $GITHUB_ENV
+          fi
+
+          if ${{ inputs.modprobeddb }}; then
+          echo "_modprobeddb=true" >> $GITHUB_ENV
+          echo "_kernel_on_diet=false" >> $GITHUB_ENV
+          fi
+
           echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
           echo "_noccache=$MYCCACHE" >> $GITHUB_OUTPUT
           echo "_compiler=$MYCC" >> $GITHUB_OUTPUT
           echo "_version=$MYKVER" >> $GITHUB_OUTPUT
           echo "_timer_freq=$MYTIMERF" >> $GITHUB_OUTPUT
-
 
       - if: ${{ inputs.swapspace }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
