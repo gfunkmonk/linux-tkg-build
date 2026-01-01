@@ -65,18 +65,12 @@ on:
       freespace:
         description: 'Run F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳'
         required: true
-        type: choice
-        options:
-         - true
-         - false
+        type: boolean
         default: false
       swapspace:
         description: 'Add Swap ̳S̳p̳a̳c̳e̳'
         required: true
-        type: choice
-        options:
-          - true
-          - false
+        type: boolean
         default: false
       kernelcomp:
         description: 'Compression for Kernel Image'
@@ -100,6 +94,16 @@ on:
           - xz
           - gzip
         default: zstd
+      configfile:
+        description: 'Kernel config file'
+        required: true
+        type: choice
+        options:
+          - config.x86_64
+          - config.running
+          - config_hardened.x86_64
+          - config.mydef
+        default: 'config.x86_64'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -123,7 +127,7 @@ jobs:
         shell: bash
 
     steps:
-      - if: ${{ inputs.freespace == 'true' }}
+      - if: ${{ inputs.freespace }}
         name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
         uses: jlumbroso/free-disk-space@main
         with:
@@ -135,6 +139,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          execute_install_scripts: true
+          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev
+            libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd
+            lld pkg-config devscripts make gcc debhelper llvm clang sed
+          version: 1.1
 
       - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ  . . ﹫
         id: config
@@ -196,97 +209,51 @@ jobs:
           fi
           echo "_timer_freq=$MYTIMERF" >> $GITHUB_ENV
 
+          # Use input if provided, otherwise use config
+          if [ -n "${{ inputs.configfile }}" ]; then
+            MYCONFIG="${{ inputs.configfile }}"
+            echo "Using configfile from workflow input"
+          else
+            MYCONFIG=$(grep "configfile=" $CFG | sed 's/"//g' | cut -d "=" -f2)
+            echo "Using configfile from config file"
+          fi
+          echo "_configfile=$MYCONFIG" >> $GITHUB_ENV
+
           # Generate kernel compression config fragment
           if [[ "${{ inputs.kernelcomp }}" == "zstd" ]]; then
-            cat <<-EOF > kernelcomp.myfrag
-            # CONFIG_KERNEL_GZIP is not set
-            # CONFIG_KERNEL_BZIP2 is not set
-            # CONFIG_KERNEL_LZMA is not set
-            # CONFIG_KERNEL_XZ is not set
-            # CONFIG_KERNEL_LZO is not set
-            # CONFIG_KERNEL_LZ4 is not set
-            CONFIG_KERNEL_ZSTD=y
-          EOF
+            sed -i 's/# CONFIG_KERNEL_ZSTD is not set/CONFIG_KERNEL_ZSTD=y/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.kernelcomp }}" == "xz" ]]; then
-            cat <<-EOF > kernelcomp.myfrag
-            # CONFIG_KERNEL_GZIP is not set
-            # CONFIG_KERNEL_BZIP2 is not set
-            # CONFIG_KERNEL_LZMA is not set
-            CONFIG_KERNEL_XZ=y
-            # CONFIG_KERNEL_LZO is not set
-            # CONFIG_KERNEL_LZ4 is not set
-            # CONFIG_KERNEL_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_KERNEL_XZ is not set/CONFIG_KERNEL_XZ=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.kernelcomp }}" == "lzma" ]]; then
-            cat <<-EOF > kernelcomp.myfrag
-            # CONFIG_KERNEL_GZIP is not set
-            # CONFIG_KERNEL_BZIP2 is not set
-            CONFIG_KERNEL_LZMA=y
-            # CONFIG_KERNEL_XZ is not set
-            # CONFIG_KERNEL_LZO is not set
-            # CONFIG_KERNEL_LZ4 is not set
-            # CONFIG_KERNEL_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_KERNEL_LZMA is not set/CONFIG_KERNEL_LZMA=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.kernelcomp }}" == "lz4" ]]; then
-            cat <<-EOF > kernelcomp.myfrag
-            # CONFIG_KERNEL_GZIP is not set
-            # CONFIG_KERNEL_BZIP2 is not set
-            # CONFIG_KERNEL_LZMA is not set
-            # CONFIG_KERNEL_XZ is not set
-            # CONFIG_KERNEL_LZO is not set
-            CONFIG_KERNEL_LZ4=y
-            # CONFIG_KERNEL_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_KERNEL_LZ4 is not set/CONFIG_KERNEL_LZ4=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.kernelcomp }}" == "lzo" ]]; then
-            cat <<-EOF > kernelcomp.myfrag
-            # CONFIG_KERNEL_GZIP is not set
-            # CONFIG_KERNEL_BZIP2 is not set
-            # CONFIG_KERNEL_LZMA is not set
-            # CONFIG_KERNEL_XZ is not set
-            CONFIG_KERNEL_LZO=y
-            # CONFIG_KERNEL_LZ4 is not set
-            # CONFIG_KERNEL_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_KERNEL_LZO is not set/CONFIG_KERNEL_LZO=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.kernelcomp }}" == "bzip2" ]]; then
-            cat <<-EOF > kernelcomp.myfrag
-            # CONFIG_KERNEL_GZIP is not set
-            CONFIG_KERNEL_BZIP2=y
-            # CONFIG_KERNEL_LZMA is not set
-            # CONFIG_KERNEL_XZ is not set
-            # CONFIG_KERNEL_LZO is not set
-            # CONFIG_KERNEL_LZ4 is not set
-            # CONFIG_KERNEL_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_KERNEL_BZIP2 is not set/CONFIG_KERNEL_BZIP2=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.kernelcomp }}" == "gzip" ]]; then
-            cat <<-EOF > kernelcomp.myfrag
-            CONFIG_KERNEL_GZIP=y
-            # CONFIG_KERNEL_BZIP2 is not set
-            # CONFIG_KERNEL_LZMA is not set
-            # CONFIG_KERNEL_XZ is not set
-            # CONFIG_KERNEL_LZO is not set
-            # CONFIG_KERNEL_LZ4 is not set
-            # CONFIG_KERNEL_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_KERNEL_GZIP is not set/CONFIG_KERNEL_GZIP=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
           fi
 
           if [[ "${{ inputs.modulecomp }}" == "zstd" ]]; then
-            cat <<-EOF > modulecomp.myfrag
-            # CONFIG_MODULE_COMPRESS_GZIP is not set
-            # CONFIG_MODULE_COMPRESS_XZ is not set
-            CONFIG_MODULE_COMPRESS_ZSTD=y
-          EOF
+            sed -i 's/# CONFIG_MODULE_COMPRESS_ZSTD is not set/CONFIG_MODULE_COMPRESS_ZSTD=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_MODULE_COMPRESS_GZIP=y/# CONFIG_MODULE_COMPRESS_GZIP is not set/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_MODULE_COMPRESS_XZ=y/# CONFIG_MODULE_COMPRESS_XZ is not set/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.modulecomp }}" == "xz" ]]; then
-            cat <<-EOF > modulecomp.myfrag
-            # CONFIG_MODULE_COMPRESS_GZIP is not set
-            CONFIG_MODULE_COMPRESS_XZ=y
-            # CONFIG_MODULE_COMPRESS_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_MODULE_COMPRESS_XZ is not set/CONFIG_MODULE_COMPRESS_XZ=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_MODULE_COMPRESS_GZIP=y/# CONFIG_MODULE_COMPRESS_GZIP is not set/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_MODULE_COMPRESS_ZSTD=y/# CONFIG_MODULE_COMPRESS_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
           elif [[ "${{ inputs.modulecomp }}" == "gzip" ]]; then
-            cat <<-EOF > modulecomp.myfrag
-            CONFIG_MODULE_COMPRESS_GZIP=y
-            # CONFIG_MODULE_COMPRESS_XZ is not set
-            # CONFIG_MODULE_COMPRESS_ZSTD is not set
-          EOF
+            sed -i 's/# CONFIG_MODULE_COMPRESS_GZIP is not set/CONFIG_MODULE_COMPRESS_GZIP=y/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_MODULE_COMPRESS_ZSTD=y/# CONFIG_MODULE_COMPRESS_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
+            sed -i 's/CONFIG_MODULE_COMPRESS_XZ=y/# CONFIG_MODULE_COMPRESS_XZ is not set/' ${{ github.workspace }}/$MYCONFIG
           fi
 
           echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
@@ -295,17 +262,8 @@ jobs:
           echo "_version=$MYKVER" >> $GITHUB_OUTPUT
           echo "_timer_freq=$MYTIMERF" >> $GITHUB_OUTPUT
 
-      - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          execute_install_scripts: true
-          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev
-            libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd
-            lld pkg-config devscripts make gcc debhelper llvm clang
-          version: 1.1
 
-
-      - if: ${{ inputs.swapspace == 'true' }}
+      - if: ${{ inputs.swapspace }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
@@ -338,16 +296,6 @@ jobs:
           echo "CCACHE_DIR=/mnt/ccache" >> $GITHUB_ENV
           echo "CCACHE Dir Set!"
           df -h
-
-          echo "CCACHE Variables:"
-          echo "CCACHE_SLOPPINESS=${{ env.CCACHE_SLOPPINESS }}"
-          echo "CCACHE_NOHASHDIR=${{ env.CCACHE_NOHASHDIR }}"
-          echo "CCACHE_COMPRESS=${{ env.CCACHE_COMPRESS }}"
-          echo "CCACHE_COMPRESSLEVEL=${{ env.CCACHE_COMPRESSLEVEL }}"
-          echo "CCACHE_DEPEND=${{ env.CCACHE_DEPEND }}"
-          echo "CC=${{ env.CC }}"
-          echo "CXX=${{ env.CC }}"
-          echo "CCACHE_DIR=${{ env.CCACHE_DIR }}"
 
       - if: ${{ env._noccache != 'true' }}
         name: ➰🐠 CCACHE 💨🐇
