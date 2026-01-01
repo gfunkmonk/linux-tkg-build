@@ -106,12 +106,12 @@ on:
         default: 'config.x86_64'
       kernel_on_diet:
         description: 'Kernel on diet'
-          required: false
-          type: boolean
+        required: false
+        type: boolean
       modprobeddb:
         description: 'modprobed-db'
-          required: false
-          type: boolean
+        required: false
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
