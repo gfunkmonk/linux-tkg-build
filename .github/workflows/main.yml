@@ -5,63 +5,6 @@ name: 'Build DEB (Ubuntu)'
 on:
   workflow_dispatch:
     inputs:
-      ubuntuver:
-        description: 'Ubuntu Version'
-        required: false
-        type: choice
-        options:
-          - latest
-          - 24.04
-          - 22.04
-        default: latest
-      version:
-        description: 'Kernel Version'
-        required: false
-        type: string
-        default: ''
-      compiler:
-        description: 'Compiler to use'
-        required: false
-        type: choice
-        options:
-          - ''
-          - gcc
-          - llvm
-        default: ''
-      cpusched:
-        description: 'CPU Scheduler'
-        required: false
-        type: choice
-        options:
-          - ''
-          - pds
-          - bmq
-          - bore
-          - cfs
-          - eevdf
-        default: ''
-      timerfreq:
-        description: 'Timer Frequency'
-        required: false
-        type: choice
-        options:
-          - ''
-          - 100
-          - 250
-          - 300
-          - 500
-          - 750
-          - 1000
-        default: ''
-      noccache:
-        description: 'Disable CCACHE'
-        required: false
-        type: choice
-        options:
-          - ''
-          - false
-          - true
-        default: ''
       freespace:
         description: 'Run F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳'
         required: true
@@ -72,46 +15,6 @@ on:
         required: true
         type: boolean
         default: false
-      #kernelcomp:
-        #description: 'Compression for Kernel Image'
-        #required: false
-        #type: choice
-        #options:
-        #  - zstd
-        #  - xz
-        #  - lz4
-        #  - lzma
-        #  - lzo
-        #  - bzip2
-        #  - gzip
-        #default: zstd
-      #modulecomp:
-        #description: 'Compression for Modules'
-        #required: false
-        #type: choice
-        #options:
-        #  - zstd
-        #  - xz
-        #  - gzip
-        #default: zstd
-      configfile:
-        description: 'Kernel config file'
-        required: true
-        type: choice
-        options:
-          - config.x86_64
-          - config.running
-          - config_hardened.x86_64
-          - config.mydef
-        default: 'config.x86_64'
-      kernel_on_diet:
-        description: 'Kernel on diet'
-        required: false
-        type: boolean
-      modprobeddb:
-        description: 'modprobed-db'
-        required: false
-        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -129,7 +32,7 @@ env:
 jobs:
   build_kernel:
     timeout-minutes: 360
-    runs-on: ubuntu-${{ inputs.ubuntuver }}
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -167,118 +70,22 @@ jobs:
             exit 1
           fi
 
-          # Use input if provided, otherwise use config
-          if [ -n "${{ inputs.cpusched }}" ]; then
-            MYSCHED="${{ inputs.cpusched }}"
-            echo "Using cpusched from workflow input"
-          else
-            MYSCHED=$(grep "cpusched=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-            echo "Using cpusched from config file"
-          fi
+          MYSCHED=$(grep "cpusched=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           echo "_cpusched=$MYSCHED" >> $GITHUB_ENV
 
-          # Use input if provided, otherwise use config
-          if [ -n "${{ inputs.noccache }}" ]; then
-            MYCCACHE="${{ inputs.noccache }}"
-            echo "Using noccache from workflow input"
-          else
-            MYCCACHE=$(grep "noccache=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-            echo "Using noccache from config file"
-          fi
+          MYCCACHE=$(grep "noccache=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           echo "_noccache=$MYCCACHE" >> $GITHUB_ENV
 
-          # Use input if provided, otherwise use config
-          if [ -n "${{ inputs.compiler }}" ]; then
-            MYCC="${{ inputs.compiler }}"
-            echo "Using compiler from workflow input"
-          else
-            MYCC=$(grep "compiler=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-            echo "Using compiler from config file"
-          fi
+          MYCC=$(grep "compiler=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           echo "_compiler=$MYCC" >> $GITHUB_ENV
 
-          # Use input if provided, otherwise use config
-          if [ -n "${{ inputs.version }}" ]; then
-            MYKVER="${{ inputs.version }}"
-            echo "Using version from workflow input"
-          else
-            MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-            echo "Using version from config file"
-          fi
+          MYKVER=$(grep "version=" $CFG | sed 's/"//g' | cut -d "=" -f2)
           echo "_version=$MYKVER" >> $GITHUB_ENV
-
-          # Use input if provided, otherwise use config
-          if [ -n "${{ inputs.timerfreq }}" ]; then
-            MYTIMERF="${{ inputs.timerfreq }}"
-            echo "Using timer_freq from workflow input"
-          else
-            MYTIMERF=$(grep "timer_freq=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-            echo "Using timer_freq from config file"
-          fi
-          echo "_timer_freq=$MYTIMERF" >> $GITHUB_ENV
-
-          # Use input if provided, otherwise use config
-          if [ -n "${{ inputs.configfile }}" ]; then
-            MYCONFIG="${{ inputs.configfile }}"
-            echo "Using configfile from workflow input"
-          else
-            MYCONFIG=$(grep "configfile=" $CFG | sed 's/"//g' | cut -d "=" -f2)
-            echo "Using configfile from config file"
-          fi
-          echo "_configfile=$MYCONFIG" >> $GITHUB_ENV
-
-          # Generate kernel compression config fragment
-          if [[ "${{ inputs.kernelcomp }}" == "zstd" ]]; then
-            sed -i 's/# CONFIG_KERNEL_ZSTD is not set/CONFIG_KERNEL_ZSTD=y/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.kernelcomp }}" == "xz" ]]; then
-            sed -i 's/# CONFIG_KERNEL_XZ is not set/CONFIG_KERNEL_XZ=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.kernelcomp }}" == "lzma" ]]; then
-            sed -i 's/# CONFIG_KERNEL_LZMA is not set/CONFIG_KERNEL_LZMA=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.kernelcomp }}" == "lz4" ]]; then
-            sed -i 's/# CONFIG_KERNEL_LZ4 is not set/CONFIG_KERNEL_LZ4=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.kernelcomp }}" == "lzo" ]]; then
-            sed -i 's/# CONFIG_KERNEL_LZO is not set/CONFIG_KERNEL_LZO=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.kernelcomp }}" == "bzip2" ]]; then
-            sed -i 's/# CONFIG_KERNEL_BZIP2 is not set/CONFIG_KERNEL_BZIP2=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.kernelcomp }}" == "gzip" ]]; then
-            sed -i 's/# CONFIG_KERNEL_GZIP is not set/CONFIG_KERNEL_GZIP=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_KERNEL_ZSTD=y/# CONFIG_KERNEL_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-          fi
-
-          if [[ "${{ inputs.modulecomp }}" == "zstd" ]]; then
-            sed -i 's/# CONFIG_MODULE_COMPRESS_ZSTD is not set/CONFIG_MODULE_COMPRESS_ZSTD=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_MODULE_COMPRESS_GZIP=y/# CONFIG_MODULE_COMPRESS_GZIP is not set/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_MODULE_COMPRESS_XZ=y/# CONFIG_MODULE_COMPRESS_XZ is not set/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.modulecomp }}" == "xz" ]]; then
-            sed -i 's/# CONFIG_MODULE_COMPRESS_XZ is not set/CONFIG_MODULE_COMPRESS_XZ=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_MODULE_COMPRESS_GZIP=y/# CONFIG_MODULE_COMPRESS_GZIP is not set/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_MODULE_COMPRESS_ZSTD=y/# CONFIG_MODULE_COMPRESS_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-          elif [[ "${{ inputs.modulecomp }}" == "gzip" ]]; then
-            sed -i 's/# CONFIG_MODULE_COMPRESS_GZIP is not set/CONFIG_MODULE_COMPRESS_GZIP=y/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_MODULE_COMPRESS_ZSTD=y/# CONFIG_MODULE_COMPRESS_ZSTD is not set/' ${{ github.workspace }}/$MYCONFIG
-            sed -i 's/CONFIG_MODULE_COMPRESS_XZ=y/# CONFIG_MODULE_COMPRESS_XZ is not set/' ${{ github.workspace }}/$MYCONFIG
-          fi
-
-          if ${{ inputs.kernel_on_diet }}; then
-          echo "_modprobeddb=false" >> $GITHUB_ENV
-          echo "_kernel_on_diet=true" >> $GITHUB_ENV
-          fi
-
-          if ${{ inputs.modprobeddb }}; then
-          echo "_modprobeddb=true" >> $GITHUB_ENV
-          echo "_kernel_on_diet=false" >> $GITHUB_ENV
-          fi
 
           echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
           echo "_noccache=$MYCCACHE" >> $GITHUB_OUTPUT
           echo "_compiler=$MYCC" >> $GITHUB_OUTPUT
           echo "_version=$MYKVER" >> $GITHUB_OUTPUT
-          echo "_timer_freq=$MYTIMERF" >> $GITHUB_OUTPUT
 
       - if: ${{ inputs.swapspace }}
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
@@ -335,8 +142,6 @@ jobs:
           echo "  Compiler: ${{ env._compiler }}"
           echo "  Scheduler: ${{ env._cpusched }}"
           echo "  Version: ${{ env._version }}"
-          echo "  Kernel Compression: ${{ inputs.kernelcomp }}"
-          echo "  Module Compression: ${{ inputs.modulecomp }}"
 
           set +o pipefail
           yes '' | ./install.sh install
