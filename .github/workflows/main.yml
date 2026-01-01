@@ -7,7 +7,7 @@ on:
     inputs:
       ubuntuver:
         description: 'Ubuntu Version'
-        required: true
+        required: false
         type: choice
         options:
           - latest
@@ -72,28 +72,28 @@ on:
         required: true
         type: boolean
         default: false
-      kernelcomp:
-        description: 'Compression for Kernel Image'
-        required: false
-        type: choice
-        options:
-          - zstd
-          - xz
-          - lz4
-          - lzma
-          - lzo
-          - bzip2
-          - gzip
-        default: zstd
-      modulecomp:
-        description: 'Compression for Modules'
-        required: false
-        type: choice
-        options:
-          - zstd
-          - xz
-          - gzip
-        default: zstd
+      #kernelcomp:
+        #description: 'Compression for Kernel Image'
+        #required: false
+        #type: choice
+        #options:
+        #  - zstd
+        #  - xz
+        #  - lz4
+        #  - lzma
+        #  - lzo
+        #  - bzip2
+        #  - gzip
+        #default: zstd
+      #modulecomp:
+        #description: 'Compression for Modules'
+        #required: false
+        #type: choice
+        #options:
+        #  - zstd
+        #  - xz
+        #  - gzip
+        #default: zstd
       configfile:
         description: 'Kernel config file'
         required: true
