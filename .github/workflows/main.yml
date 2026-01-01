@@ -206,7 +206,7 @@ jobs:
             # CONFIG_KERNEL_LZO is not set
             # CONFIG_KERNEL_LZ4 is not set
             CONFIG_KERNEL_ZSTD=y
-            EOF
+          EOF
           elif [[ "${{ inputs.kernelcomp }}" == "xz" ]]; then
             cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
@@ -216,7 +216,7 @@ jobs:
             # CONFIG_KERNEL_LZO is not set
             # CONFIG_KERNEL_LZ4 is not set
             # CONFIG_KERNEL_ZSTD is not set
-            EOF
+          EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lzma" ]]; then
             cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
@@ -226,7 +226,7 @@ jobs:
             # CONFIG_KERNEL_LZO is not set
             # CONFIG_KERNEL_LZ4 is not set
             # CONFIG_KERNEL_ZSTD is not set
-            EOF
+          EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lz4" ]]; then
             cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
@@ -236,7 +236,7 @@ jobs:
             # CONFIG_KERNEL_LZO is not set
             CONFIG_KERNEL_LZ4=y
             # CONFIG_KERNEL_ZSTD is not set
-            EOF
+          EOF
           elif [[ "${{ inputs.kernelcomp }}" == "lzo" ]]; then
             cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
@@ -246,7 +246,7 @@ jobs:
             CONFIG_KERNEL_LZO=y
             # CONFIG_KERNEL_LZ4 is not set
             # CONFIG_KERNEL_ZSTD is not set
-            EOF
+          EOF
           elif [[ "${{ inputs.kernelcomp }}" == "bzip2" ]]; then
             cat <<-EOF > kernelcomp.myfrag
             # CONFIG_KERNEL_GZIP is not set
@@ -256,7 +256,7 @@ jobs:
             # CONFIG_KERNEL_LZO is not set
             # CONFIG_KERNEL_LZ4 is not set
             # CONFIG_KERNEL_ZSTD is not set
-            EOF
+          EOF
           elif [[ "${{ inputs.kernelcomp }}" == "gzip" ]]; then
             cat <<-EOF > kernelcomp.myfrag
             CONFIG_KERNEL_GZIP=y
@@ -266,7 +266,7 @@ jobs:
             # CONFIG_KERNEL_LZO is not set
             # CONFIG_KERNEL_LZ4 is not set
             # CONFIG_KERNEL_ZSTD is not set
-            EOF
+          EOF
           fi
 
           if [[ "${{ inputs.modulecomp }}" == "zstd" ]]; then
@@ -274,19 +274,19 @@ jobs:
             # CONFIG_MODULE_COMPRESS_GZIP is not set
             # CONFIG_MODULE_COMPRESS_XZ is not set
             CONFIG_MODULE_COMPRESS_ZSTD=y
-            EOF
+          EOF
           elif [[ "${{ inputs.modulecomp }}" == "xz" ]]; then
             cat <<-EOF > modulecomp.myfrag
             # CONFIG_MODULE_COMPRESS_GZIP is not set
             CONFIG_MODULE_COMPRESS_XZ=y
             # CONFIG_MODULE_COMPRESS_ZSTD is not set
-            EOF
+          EOF
           elif [[ "${{ inputs.modulecomp }}" == "gzip" ]]; then
             cat <<-EOF > modulecomp.myfrag
             CONFIG_MODULE_COMPRESS_GZIP=y
             # CONFIG_MODULE_COMPRESS_XZ is not set
             # CONFIG_MODULE_COMPRESS_ZSTD is not set
-            EOF
+          EOF
           fi
 
           echo "_cpusched=$MYSCHED" >> $GITHUB_OUTPUT
