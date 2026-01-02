@@ -42,9 +42,13 @@ jobs:
         name: 👉🏻🗑️ F̳r̳e̳e̳ ̳D̳i̳s̳k̳ ̳S̳p̳a̳c̳e̳ ⋆｡‧˚ʚ🗑️ɞ˚‧｡⋆
         uses: jlumbroso/free-disk-space@main
         with:
-          swap-storage: true
+          swap-storage: false
           large-packages: false
-          tool-cache: true
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          docker-images: true
 
       - name: (づ ᴗ _ᴗ)づ𝘾𝙝𝙚𝙘𝙠𝙤𝙪𝙩 𝙧𝙚𝙥𝙤𝙨𝙞𝙩𝙤𝙧𝙮 🎁
         uses: actions/checkout@v4
@@ -52,13 +56,16 @@ jobs:
           fetch-depth: 1
 
       - name: 📦 🇮‌🇳‌🇸‌🇹‌🇦‌🇱‌🇱‌ 🇧‌🇺‌🇮‌🇱‌🇩‌ 🇩‌🇪‌🇵‌🇪‌🇳‌🇩‌🇦‌🇳‌🇨‌🇮‌🇪‌🇸‌ 📦📦
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          execute_install_scripts: true
-          packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev
-            libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd
-            lld pkg-config devscripts make gcc debhelper llvm clang sed
-          version: 1.1
+        #uses: awalsh128/cache-apt-pkgs-action@latest
+        #with:
+        #  execute_install_scripts: true
+        #  packages: bc bison build-essential ccache cpio fakeroot flex git kmod libdw-dev
+        #    libelf-dev libncurses-dev libssl-dev lz4 rsync schedtool wget zstd
+        #    lld pkg-config devscripts make gcc debhelper llvm clang sed
+        #  version: 1.1
+        run: |
+          sudo apt update -yq
+          sudo apt install bc bison build-essential ccache clang cpio curl debhelper debhelper-compat devscripts dpkg-dev dwarves elfutils fakeroot flex g++ gawk gcc git kmod libdw-dev libelf-dev libncurses-dev libssl-dev libudev-dev lld llvm lz4 make patch pkg-config rsync schedtool sed wget xz-utils zlib1g-dev zstd -yq
 
       - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ  . . ﹫
         id: config
@@ -91,7 +98,7 @@ jobs:
         name: ⋆˚꩜｡ 𝔸𝕕𝕕 𝕤𝕨𝕒𝕡 𝕤𝕡𝕒𝕔𝕖 ⋆˚꩜｡
         uses: pierotofy/set-swap-space@master
         with:
-          swap-size-gb: 10
+          swap-size-gb: 5
 
       - if: ${{ env._noccache != 'true' }}
         name: 🌍 🅲🅲🅰🅲🅷🅴 🅴🅽🆅🅸🆁🅾🅽🅼🅴🅽🆃 🆅🅰🆁🅸🅰🅱🅻🅴🆂 📜
@@ -102,8 +109,15 @@ jobs:
           CCACHE_COMPRESS=1
           CCACHE_COMPRESSLEVEL=9
           CCACHE_DEPEND=1
+          CCACHE_FILE_CLONE=true
+          CCACHE_NOHARDLINK=true
+          CCACHE_INODECACHE=true
+          CCACHE_NORECACHE=true
+          CCACHE_NLEVELS=4
+          CCACHE_COMPILERCHECK=content
           EOF
           echo "CCACHE Environment set!"
+
           # Set Compiler
           if [[ "${{ env._compiler }}" == "llvm" ]]; then
             echo "CC=ccache clang" >> $GITHUB_ENV
@@ -132,6 +146,7 @@ jobs:
           restore-keys: |
             kernel-build-${{ runner.os }}-
           verbose: 2
+          save: true
 
       - name: 🦼🧑‍🚧 ᑕOᗰᑭIᒪE KEᖇᑎEᒪ ᗩᑎᗪ ᗰOᗪᑌᒪEᔕ 👷🚧🏗️
         run: |
@@ -155,6 +170,9 @@ jobs:
 
           echo "Build completed successfully"
 
+     #- name: 🔐 🄢🄢🄗 ⒱⒤⒜ 🄒⒧⒪⒰⒟⒡⒧⒜⒭⒠
+     #  uses: valeriangalliat/action-sshd-cloudflared@v1
+
       - name: 🧹🪣 P͎u͎r͎g͎e͎ ͎u͎s͎l͎e͎s͎s͎ ͎D͎E͎B͎ ͎f͎i͎l͎e͎s͎ ✨
         run: rm -rf DEBS/*dbg*.deb DEBS/*libc-dev*.deb 2>/dev/null || true
 
@@ -166,6 +184,7 @@ jobs:
         with:
           compression-level: 8
           retention-days: 30
+          if-no-files-found: error
           name: '${{ env._distro }}-kernel-${{ env._version }}-tkg-pkg-${{ env._cpusched }}_${{ env._compiler }}'
           path: |
             DEBS/*.deb
