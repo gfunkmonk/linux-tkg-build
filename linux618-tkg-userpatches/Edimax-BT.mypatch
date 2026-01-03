@@ -1,0 +1,24 @@
+From d3551dfe33fde5506e03ba972046840f6bccaa6e Mon Sep 17 00:00:00 2001
+From: Matt Rinsch <gfunkmonk@mailbox.org>
+Date: Sat, 3 Jan 2026 18:23:34 -0500
+Subject: [PATCH] Add support for 'Edimax EW-7611ULB'  a Realtek device
+
+---
+ drivers/bluetooth/btusb.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index dc0c45756..969c13854 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -743,6 +743,7 @@ static const struct usb_device_id quirks_table[] = {
+ 
+ 	/* Additional Realtek 8723BU Bluetooth devices */
+ 	{ USB_DEVICE(0x7392, 0xa611), .driver_info = BTUSB_REALTEK },
++	{ USB_DEVICE(0x7392, 0xd611), .driver_info = BTUSB_REALTEK },
+ 
+ 	/* Additional Realtek 8723DE Bluetooth devices */
+ 	{ USB_DEVICE(0x0bda, 0xb009), .driver_info = BTUSB_REALTEK },
+-- 
+2.51.0
+
