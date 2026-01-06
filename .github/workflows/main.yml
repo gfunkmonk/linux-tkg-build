@@ -69,6 +69,9 @@ jobs:
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-13 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-13 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-13 --slave /usr/bin/gcc-gcov gcc-gov /usr/bin/gcc-gcov-13 --slave /usr/bin/gcc-gcov-dump gcc-gov-dump /usr/bin/gcc-gcov-dump-13 --slave /usr/bin/gcc-gcov-tool gcc-gov-tool /usr/bin/gcc-gcov-tool-13 --slave /usr/bin/lto-dump lto-dump /usr/bin/lto-dump-13
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 --slave /usr/bin/g++ g++ /usr/bin/g++-14 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 --slave /usr/bin/gcc-gcov gcc-gov /usr/bin/gcc-gcov-14 --slave /usr/bin/gcc-gcov-dump gcc-gov-dump /usr/bin/gcc-gcov-dump-14 --slave /usr/bin/gcc-gcov-tool gcc-gov-tool /usr/bin/gcc-gcov-tool-14 --slave /usr/bin/lto-dump lto-dump /usr/bin/lto-dump-14
 
+      - name: 🔐 🄢🄢🄗 ⒱⒤⒜ 🄒⒧⒪⒰⒟⒡⒧⒜⒭⒠
+        uses: valeriangalliat/action-sshd-cloudflared@v1
+
       - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ  . . ﹫
         id: config
         run: |
