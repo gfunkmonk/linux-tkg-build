@@ -125,9 +125,9 @@ jobs:
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-13 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-13 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-13 --slave /usr/bin/gcov gov /usr/bin/gcov-13 --slave /usr/bin/gcov-dump gov-dump /usr/bin/gcov-dump-13 --slave /usr/bin/gcov-tool gov-tool /usr/bin/gcov-tool-13 --slave /usr/bin/lto-dump lto-dump /usr/bin/lto-dump-13
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 --slave /usr/bin/g++ g++ /usr/bin/g++-14 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 --slave /usr/bin/gcov gov /usr/bin/gcov-14 --slave /usr/bin/gcov-dump gov-dump /usr/bin/gcov-dump-14 --slave /usr/bin/gcov-tool gov-tool /usr/bin/gcov-tool-14 --slave /usr/bin/lto-dump lto-dump /usr/bin/lto-dump-14
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 15 --slave /usr/bin/g++ g++ /usr/bin/g++-15 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-15 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-15 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-15 --slave /usr/bin/gcov gov /usr/bin/gcov-15 --slave /usr/bin/gcov-dump gov-dump /usr/bin/gcov-dump-15 --slave /usr/bin/gcov-tool gov-tool /usr/bin/gcov-tool-15 --slave /usr/bin/lto-dump lto-dump /usr/bin/lto-dump-15
-
-      - name: 🔐 🄢🄢🄗 ⒱⒤⒜ 🄒⒧⒪⒰⒟⒡⒧⒜⒭⒠
-        uses: valeriangalliat/action-sshd-cloudflared@v1
+          sudo apt clean -yq
+          sudo apt autoremove -yq
+          sudo apt autoclean -yq
 
       - name: ˖⌕ ۫ . gєт ναяιαвℓєѕ  . . ﹫
         id: config
