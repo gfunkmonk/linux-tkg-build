@@ -2093,7 +2093,7 @@ index e2ebfbf10..eafb9c116 100644
  	 * For single queue devices, default to using mq-deadline. If we
  	 * have multiple queues or mq-deadline is not available, default
 @@ -762,13 +770,10 @@ void elevator_set_default(struct request_queue *q)
- 	if (!ctx.type)
+ 	if (!e)
  		return;
  
 -	if ((q->nr_hw_queues == 1 ||
@@ -2107,7 +2107,7 @@ index e2ebfbf10..eafb9c116 100644
 +	if (err < 0)
 +		pr_warn("\"%s\" elevator initialization, failed %d, falling back to \"none\"\n",
 +				ctx.name, err);
- 	elevator_put(ctx.type);
+ 	elevator_put(e);
  }
  
 -- 
